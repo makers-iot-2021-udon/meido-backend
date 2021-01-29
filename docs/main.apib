@@ -1,4 +1,4 @@
-# 作ってみたいAPI
+# 作る予定のAPI
 
 FORMAT: 1A
 HOST: http://localhost
@@ -6,28 +6,35 @@ HOST: http://localhost
 # Meido API
 
 メイドさんのためのAPI。それ以上もそれ以下もない。
+基本的にはWebアプリ用。しかし、Unityからも良い感じに呼んだり良い感じの値を取ってくることでメイドの表現に幅が生まれるかもしれない。  
+--- 
+/wsと書かれているものは全てSocket通信。リクエストにアクションタイプを明記すること。
+/ws以外は通常のhttpリクエストに対応したAPIを用意する予定。GETの場合は/ws:以下の内容をactionに明記して
+```
+{
+    "action:" <書かれている内容>
+}
+```
+とする。
 
 # Group ドア関連
 
-## ドアの開閉状況を通知する [/door]
+## ドアの開閉状況を通知する [/ws: POST_DOOR]
 
-### ドアの開閉状況を通知 [POST /door/status]
+### ドアの開閉状況を通知 [POST]
 
 + Request (application/json)
     + Attributes
-        + status: true (boolean, required) - ユーザ名
-
+        + action: POST_DOOR (string,required) - アクションタイプ
+ 
 + Response 200 (application/json)
     + Attributes
         + status: `SUCCESS` (string) - 登録結果
-
-+ Response 404 (application/json)
-    + Attributes
-        + status: 'ERROR' (string) - 失敗結果
-        + log : 'LOG' (string) - エラーログ（空文字の可能性もある）
-
+        + error: false (boolean) - サーバーの生死
 
 # Group 認証関連
+
+まだ準備中
 
 # Group ユーザー関連
 
@@ -71,30 +78,78 @@ HOST: http://localhost
 
 # Group 謎機能
 
-## メイドちゃんにメッセージを投げる [POST /meido/message]
+## メイドちゃんにメッセージを投げる [POST /ws: MEIDO_VOTE]
 
 + Request (application/json)
     + Attributes
-        + message: 'にゃ～ん' (string) - 推しへの愛のメッセージを投下
+        + action: MEIDO_VOTE (string,required) - アクションタイプ
+        + message: 'にゃ～ん' (string,required) - 推しへの愛のメッセージを投下
 
++ Response 200(application/json)
+    + Attributes
+        + message: ありがとなす (string) - 推しからの愛のメッセージ
+        + status: OK (string) - 推しの状態
+        + error: false (boolean) - 処理結果がエラーか否か
 
-## APIに接続中のユーザーをカウント [GET /meido/count/users]
+## メイドちゃん応援中をアピール [POST /ws: MEIDO_FUN]
 
-+ Response (application/json)
+これはConneting Usersのカウントのために定期的に回して欲しいAPIです。サーバー上では5分以上接続が無かったら遮断されたと見なします。
+
++ Request (application/json)
+    + Attributes
+        + action: MEIDO_FUN (string,required) - アクションタイプ
+        + uid: hogehoge (string,required) - Liffで取得したUIDまたは一意のキー
+
++ Response 200 (application/json)
+    + Attributes
+        + message: ありがとなす！ (string) - 推しからの応援メッセージ
+
+## APIに接続中のユーザーをカウント [GET /ws: MEIDO_COUNT]
+
++ Request (application/json)
+    + Attributes
+        + action: MEIDO_COUNT (string,required) - アクションタイプ
+
++ Response 200 (application/json)
     + Attributes
         + count: 10 (number) - 接続中のユーザー数
 
-## メイドちゃんのステータスを返す [GET /meido/status]
+## メイドに送られた推しメッセージを取得 [GET /ws: GET_MESSAGE] 
 
+注意：このAPIを叩くと以前に投稿された推しへのメッセージは全て無くなります
+
++ Request (application/json)
+    + Attributes
+        + action: MEIDO_MESSAGE (string,required) - アクションタイプの指定
+
++ Response 200 (application/json)
+    + Attributes
+        + messages (array[string])
+            + ありがとなす (string) - 推しからのメッセージ
+            + ありがとなす (string) - 推しからのメッセージ
+            + ありがとなす (string) - 推しからのメッセージ
+            + ありがとなす (string) - 推しからのメッセージ
+
+## メイドちゃんのステータスを返す [GET /ws: MEIDO_STATUS]
+
++ Request (application/json)
+    + Attributes
+        + action: MEIDO_STATUS (string,required) - アクションタイプを指定
 + Response (application/json)
     + Attributes
-        + status: "Tired" (string) - メイドちゃんの状態
+        + status: Tired (string) - メイドちゃんの状態
 
 # Group システム関連
 
-## システムの状態を返す [GET /system/status]
+## システムの状態を返す [GET /ws: SYSTEM_STATUS]
 
++ Request (application/json)
+    + Attributes
+        + action: SYSTEM_STATUS (string,required) - アクションタイプを指定
 + Response (application/json)
     + Attributes
         + status: "Avalilable" (string) - サーバーのステータスメッセージを格納
         + error: false (boolean) - サーバーにエラーが発生している場合はフラグが立つ。
+
+
+        
