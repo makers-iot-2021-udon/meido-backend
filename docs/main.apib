@@ -1,0 +1,100 @@
+# 作ってみたいAPI
+
+FORMAT: 1A
+HOST: http://localhost
+
+# Meido API
+
+メイドさんのためのAPI。それ以上もそれ以下もない。
+
+# Group ドア関連
+
+## ドアの開閉状況を通知する [/door]
+
+### ドアの開閉状況を通知 [POST /door/status]
+
++ Request (application/json)
+    + Attributes
+        + status: true (boolean, required) - ユーザ名
+
++ Response 200 (application/json)
+    + Attributes
+        + status: `SUCCESS` (string) - 登録結果
+
++ Response 404 (application/json)
+    + Attributes
+        + status: 'ERROR' (string) - 失敗結果
+        + log : 'LOG' (string) - エラーログ（空文字の可能性もある）
+
+
+# Group 認証関連
+
+# Group ユーザー関連
+
+## 認証されたユーザー数を確認する [/users]
+
+### 認証されたユーザーの数を取得する [GET /users/authenticated]
+
++ Response 200 (application/json)
+    + Attributes
+        + status: 'SUCCESS' (string) - APIの実行結果
+        + count: 10 (number) - 認証されたユーザー数を格納する
+
+### リジェクトされたユーザーの数を取得する [GET /users/rejected]
+
++ Response 200 (application/json)
+    + Attributes
+        + status: 'SUCCESS' (string) - APIの実行結果
+        + count: 10 (number) - 認証されたユーザー数を格納する
+
+# Group ログ関連
+
+## エラーログ [/log/error]
+
+### エラーログの一覧を取得する [GET /log/error]
+
++ Response 200 (application/json)
+    + Attributes
+        + logs (array[object])
+            + (object)
+                + camera_name: 'カメラ1' (string) - カメラ名
+                + timestamp: '2021-01-10T13:50:40+09:00' (string) - ISO8601準拠のタイムスタンプ
+                + imageUrl: 'http://example.com/picture/camera.jpg' (string) - 画像のアクセスリンク
+
+### エラーログの数を取得する [GET /log/count]
+
++ Response 200 (application/json)
+    + Attributes
+        + count: 10 (number) - エラーログの数
+
+
+
+# Group 謎機能
+
+## メイドちゃんにメッセージを投げる [POST /meido/message]
+
++ Request (application/json)
+    + Attributes
+        + message: 'にゃ～ん' (string) - 推しへの愛のメッセージを投下
+
+
+## APIに接続中のユーザーをカウント [GET /meido/count/users]
+
++ Response (application/json)
+    + Attributes
+        + count: 10 (number) - 接続中のユーザー数
+
+## メイドちゃんのステータスを返す [GET /meido/status]
+
++ Response (application/json)
+    + Attributes
+        + status: "Tired" (string) - メイドちゃんの状態
+
+# Group システム関連
+
+## システムの状態を返す [GET /system/status]
+
++ Response (application/json)
+    + Attributes
+        + status: "Avalilable" (string) - サーバーのステータスメッセージを格納
+        + error: false (boolean) - サーバーにエラーが発生している場合はフラグが立つ。
