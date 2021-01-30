@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: meido
+  namespace: meido
+spec:
+  type: LoadBalancer
+  selector:
+    app: meido
+  ports:
+  - port: 80
+    targetPort: 8000
+
