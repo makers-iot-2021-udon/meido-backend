@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  meido-api:
+    build: ./meido-api
+    working_dir: /go/src
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - "REDIS_HOST=redis:6379"
+      # ローカルのテストの時だけ有効にする
+      # - "REDIS_PATH=redis:6379"
+      - "PORT=8080"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    command: redis-server
+  # worker:
+  #   build: ./worker
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     - "REDIS_HOST=redis:6379"
+

@@ -1,4 +1,4 @@
-module meido-api
+module main
 
 go 1.15
 

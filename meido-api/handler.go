@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"main/persistence/redis"
 	"os"
 	"time"
 
-	"github.com/go-redis/redis"
 	"github.com/pkg/errors"
 )
 
@@ -192,11 +192,11 @@ func voteHandler(message string) ([]byte, error) {
 //メッセージ取得
 func getMessages() ([]string, error) {
 	redisPath := os.Getenv("REDIS_PATH")
-	client := redis.NewClient(
-		&redis.Options{
-			Addr:     redisPath,
-			Password: "",
-			DB:       0})
+	client, err := redis.New(redisPath)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get redis client")
+	}
 
 	defer client.Close()
 
@@ -226,15 +226,16 @@ func getMessages() ([]string, error) {
 //ユーザーのカウント
 func addValue(target string) error {
 	redisPath := os.Getenv("REDIS_PATH")
-	client := redis.NewClient(
-		&redis.Options{
-			Addr:     redisPath,
-			Password: "",
-			DB:       0})
+	log.Println(redisPath)
+	client, err := redis.New(redisPath)
+
+	if err != nil {
+		return errors.Wrap(err, "failed to get redis client")
+	}
 
 	defer client.Close()
 
-	err := client.Get(target).Err()
+	err = client.Get(target).Err()
 
 	if err == redis.Nil {
 
@@ -257,15 +258,15 @@ func addValue(target string) error {
 //ユーザーの削除
 func declValue(target string) (int64, error) {
 	redisPath := os.Getenv("REDIS_PATH")
-	client := redis.NewClient(
-		&redis.Options{
-			Addr:     redisPath,
-			Password: "",
-			DB:       0})
+	client, err := redis.New(redisPath)
+
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to get redis client")
+	}
 
 	defer client.Close()
 
-	err := client.Get(target).Err()
+	err = client.Get(target).Err()
 
 	if err == redis.Nil {
 
@@ -288,15 +289,14 @@ func declValue(target string) (int64, error) {
 func postMessage(message string) error {
 
 	redisPath := os.Getenv("REDIS_PATH")
-	client := redis.NewClient(
-		&redis.Options{
-			Addr:     redisPath,
-			Password: "",
-			DB:       0})
+	client, err := redis.New(redisPath)
+	if err != nil {
+		return errors.Wrap(err, "failed to get redis client")
+	}
 
 	defer client.Close()
 
-	err := client.Get(messageTarget).Err()
+	err = client.Get(messageTarget).Err()
 
 	if err == redis.Nil {
 		err = client.Set(messageTarget, message, time.Hour*24).Err()
@@ -317,11 +317,12 @@ func postMessage(message string) error {
 func getDoorState() (string, error) {
 
 	redisPath := os.Getenv("REDIS_PATH")
-	client := redis.NewClient(
-		&redis.Options{
-			Addr:     redisPath,
-			Password: "",
-			DB:       0})
+	client, err := redis.New(redisPath)
+
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get redis client")
+	}
+
 	defer client.Close()
 
 	message, err := client.Get(doorTarget).Result()

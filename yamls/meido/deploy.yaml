@@ -1,0 +1,23 @@
+apiVersions: apps/v1
+kind: Deployment
+metadata:
+  name: meido
+  namespace: meido
+spec:
+  selector:
+    matchLabels:
+      app: meido
+  template:
+    metadata:
+      labels:
+        app: meido
+    spec:
+      containers:
+        - name: meido
+          image: notchman/meido:0.1
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8080

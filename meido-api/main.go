@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -33,7 +36,8 @@ func reader(conn *websocket.Conn) {
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf(w, "Please connect via WebSocket")
+	fmt.Fprintf(w, "please connect via WebSocket")
+
 }
 
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -53,31 +57,32 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ws.WriteMessage(1,[byte]("Hi Client"))
-	if err != nil{
+	err = ws.WriteMessage(1, []byte("Hi Client!"))
+
+	if err != nil {
 		log.Println(err)
 	}
 
 	reader(ws)
 
 	log.Println("Client Disconnected")
-	currentNum,err := declvalue(CLIENT_NUM)
-	if err != nil{
+	currentNum, err := declValue(CLIENT_NUM)
+	if err != nil {
 		log.Println(err)
 		return
 	}
 	fmt.Printf("Successfully decrement CLIENT_NUM.\ncurrent num is :%d\n", currentNum)
 }
 
-func setupRoutes(){
-	http.HandleFunc("/",homePage)
-	http.HandleFunc("/ws",wsEndpoint)
+func setupRoutes() {
+	http.HandleFunc("/", homePage)
+	http.HandleFunc("/ws", wsEndpoint)
 	// http.HandleFunc("/meido",meidoEndPoint)
 }
 
-func main(){
+func main() {
 	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Hello world")
 	setupRoutes()
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"),nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
