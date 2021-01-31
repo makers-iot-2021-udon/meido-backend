@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: meido
-          image: notchman/meido:0.1
+          image: notchman/meido-app:latest
           resources:
             limits:
               memory: "128Mi"
