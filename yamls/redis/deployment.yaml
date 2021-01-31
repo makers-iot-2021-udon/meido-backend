@@ -13,31 +13,32 @@ spec:
         app: redis
     spec:
       containers:
-      - name: redis
-        image: redis:alpine
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 6379
-        readinessProbe:
+        - name: redis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          readinessProbe:
             periodSeconds: 5
             tcpSocket:
               port: 6379
-        livenessProbe:
+          livenessProbe:
             periodSeconds: 5
             tcpSocket:
               port: 6379
-        volumeMounts:
-          - mountPath: /data
-            name: redis-data
+          volumeMounts:
+            - mountPath: /data
+              name: redis-data
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 125m
+            requests:
+              cpu: 70m
+              memory: 200Mi
       volumes:
         - name: redis-data
           emptyDir: {}
-
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -46,9 +47,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: meido
+    app: redis
   ports:
-  - name: redis
-    port: 6379
-    targetPort: 6379
-
+    - name: redis
+      port: 6379
+      targetPort: 6379
