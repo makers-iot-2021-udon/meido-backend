@@ -21,4 +21,8 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 8080
-
+          env:
+            - name: REDIS_PATH
+              value: "redis:6379"
+            - name: "PORT"
+              value: "8080"
