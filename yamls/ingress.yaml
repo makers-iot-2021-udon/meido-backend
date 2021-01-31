@@ -15,15 +15,13 @@ spec:
       - meido-app.cf
       secretName: tls-secret-prod
   rules:
-  - host: meido-app.cf
-    http:
-      paths:
-      - pathType: Prefix
-        path: /backend(/|$)(.*)
-        backend:
-          service:
-            serviceName: meido
-            servicePort: 80
+    - host: meido-app.cf
+      http:
+        paths:
+          - backend:
+              serviceName: kubesmas-tree
+              servicePort: 80
+            path: /backend(/|$)(.*)
 
 # ---
 
