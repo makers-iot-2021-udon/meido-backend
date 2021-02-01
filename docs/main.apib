@@ -29,6 +29,7 @@ HOST: http://localhost
  
 + Response 200 (application/json)
     + Attributes
+        + action: POST_DOOR (string) - アクションタイプ
         + status: `SUCCESS` (string) - 登録結果
         + error: false (boolean) - サーバーの生死
 
@@ -84,9 +85,9 @@ HOST: http://localhost
     + Attributes
         + action: MEIDO_VOTE (string,required) - アクションタイプ
         + message: 'にゃ～ん' (string,required) - 推しへの愛のメッセージを投下
-
 + Response 200(application/json)
     + Attributes
+        + action: MEIDO_VOTE (string) - アクションタイプ
         + message: ありがとなす (string) - 推しからの愛のメッセージ
         + status: OK (string) - 推しの状態
         + error: false (boolean) - 処理結果がエラーか否か
@@ -102,6 +103,7 @@ HOST: http://localhost
 
 + Response 200 (application/json)
     + Attributes
+        + action: MEIDO_FUN (string) - アクションタイプ
         + message: ありがとなす！ (string) - 推しからの応援メッセージ
 
 ## APIに接続中のユーザーをカウント [GET /ws: MEIDO_COUNT]
@@ -112,6 +114,7 @@ HOST: http://localhost
 
 + Response 200 (application/json)
     + Attributes
+        + action: MEIDO_COUNT (string) - アクションタイプ
         + count: 10 (number) - 接続中のユーザー数
 
 ## メイドに送られた推しメッセージを取得 [GET /ws: GET_MESSAGE] 
@@ -124,6 +127,7 @@ HOST: http://localhost
 
 + Response 200 (application/json)
     + Attributes
+        + action: MEIDO_MESSAGE (string) - アクションタイプ
         + messages (array[string])
             + ありがとなす (string) - 推しからのメッセージ
             + ありがとなす (string) - 推しからのメッセージ
@@ -135,8 +139,10 @@ HOST: http://localhost
 + Request (application/json)
     + Attributes
         + action: MEIDO_STATUS (string,required) - アクションタイプを指定
-+ Response (application/json)
+
++ Response　(application/json)
     + Attributes
+        + action: MEIDO_STATUS (string) - アクションタイプ
         + status: Tired (string) - メイドちゃんの状態
 
 # Group システム関連
@@ -148,8 +154,8 @@ HOST: http://localhost
         + action: SYSTEM_STATUS (string,required) - アクションタイプを指定
 + Response (application/json)
     + Attributes
-        + status: "Avalilable" (string) - サーバーのステータスメッセージを格納
+        + action: SYSTEM_STATUS (string) - アクションタイプ
+        + status: Avalilable (string) - サーバーのステータスメッセージを格納
         + error: false (boolean) - サーバーにエラーが発生している場合はフラグが立つ。
 
 
-        
