@@ -17,31 +17,36 @@ type Request struct {
 }
 
 // APIやサーバーの状態を扱う(ドア・メイド・認証で用いる）
+
 type StatusMessage struct {
+	Action string `json:"action"`
 	Error  bool   `json:"error"`
 	Status string `json:"status"`
 }
 
 type MeidoMessage struct {
+	Action  string `json:"action"`
 	Message string `json:"message"`
 	Status  string `json:"status"`
 	Error   bool   `json:"error"`
 }
 
 type Message struct {
+	Action   string   `json:"action"`
 	Messages []string `json:"messages"`
 }
 
 type CountMessage struct {
-	count int64 `json:"count"`
+	Action string `json:"action"`
+	count  int64  `json:"count"`
 }
 
 const connectionTarget = "connections"
 const messageTarget = "messages"
 const doorTarget = "doorTarget"
 
-var errorResponse = []byte(`{"status":"NG","error": true}`)
-var defaultMeidoStatus = []byte(`{"status":"FINE","error":false}`)
+var errorResponse = []byte(`{"action":"ERROR_MESSAGE","status":"NG","error": true}`)
+var defaultMeidoStatus = []byte(`{"action":"MEIDO_STATUS","status":"FINE","error":false}`)
 
 func handler(s []byte) []byte {
 	var r Request
@@ -69,7 +74,7 @@ func handler(s []byte) []byte {
 		return defaultMeidoStatus
 
 	case r.Action == "SYSTEM_STATUS":
-		return []byte(`{"status":"FINE","error":false}`)
+		return []byte(`{"action":"SYSTEM_STATUS","status":"FINE","error":false}`)
 
 	case r.Action == "MEIDO_COUNT":
 		r, err := connectionCountHandler()
@@ -105,10 +110,10 @@ func messageHandler() ([]byte, error) {
 
 	r := Message{
 		Messages: messages,
+		Action:   "MEIDO_MESSAGE",
 	}
 	b, err := json.Marshal(r)
 	if err != nil {
-
 		log.Println("cannot marshal struct: %v", err)
 		return nil, err
 	}
@@ -124,7 +129,8 @@ func connectionCountHandler() ([]byte, error) {
 	var _count int64 = 0
 	_count, err = declValue(connectionTarget)
 	r := CountMessage{
-		count: _count,
+		Action: "MEIDO_COUNT",
+		count:  _count,
 	}
 	b, err := json.Marshal(r)
 	if err != nil {
@@ -145,6 +151,7 @@ func doorHandler() ([]byte, error) {
 	}
 
 	r := StatusMessage{
+		Action: "POST_DOOR",
 		Status: message,
 		Error:  false,
 	}
@@ -162,7 +169,7 @@ func connectHandler() ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed")
 	}
-	r := MeidoMessage{Error: false, Status: "OK", Message: "ごしゅじんさま～、よおこそ"}
+	r := MeidoMessage{Action: "MEIDO_MESSAGE", Error: false, Status: "OK", Message: "ごしゅじんさま～、よおこそ"}
 	b, err := json.Marshal(r)
 	if err != nil {
 		log.Println(err)
@@ -180,7 +187,7 @@ func voteHandler(message string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed")
 	}
-	r := MeidoMessage{Error: false, Status: "OK", Message: "ごしゅじんさま～、ありがとなす！"}
+	r := MeidoMessage{Action: "MEIDO_VOTE", Error: false, Status: "OK", Message: "ごしゅじんさま～、ありがとなす！"}
 	b, err := json.Marshal(r)
 	if err != nil {
 		log.Println(err)
