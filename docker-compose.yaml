@@ -10,7 +10,7 @@ services:
     environment:
       - "REDIS_HOST=redis:6379"
       # ローカルのテストの時だけ有効にする
-      # - "REDIS_PATH=redis:6379"
+      - "REDIS_PATH=redis:6379"
       - "PORT=8080"
   redis:
     image: redis

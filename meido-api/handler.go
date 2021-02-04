@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"main/persistence/redis"
 	"os"
@@ -38,7 +39,7 @@ type Message struct {
 
 type CountMessage struct {
 	Action string `json:"action"`
-	count  int64  `json:"count"`
+	Count  int64  `json:"count"`
 }
 
 const connectionTarget = "connections"
@@ -97,8 +98,13 @@ func handler(s []byte) []byte {
 			return errorResponse
 		}
 		return r
+	case r.Action == "MEIDO_MESSAGE":
+		r, err := connectHandler()
+		if err != nil {
+			return errorResponse
+		}
+		return r
 	}
-
 	return errorResponse
 }
 
@@ -128,13 +134,13 @@ func connectionCountHandler() ([]byte, error) {
 	}
 	var _count int64 = 0
 	_count, err = declValue(connectionTarget)
+	fmt.Println(_count)
 	r := CountMessage{
 		Action: "MEIDO_COUNT",
-		count:  _count,
+		Count:  _count,
 	}
 	b, err := json.Marshal(r)
 	if err != nil {
-
 		log.Println("cannot marshal struct: %v", err)
 		return nil, err
 	}
@@ -262,35 +268,48 @@ func addValue(target string) error {
 	return nil
 }
 
-//ユーザーの削除
+// //ユーザーの削除
+// func declValue(target string) (int64, error) {
+// 	redisPath := os.Getenv("REDIS_PATH")
+// 	client, err := redis.New(redisPath)
+
+// 	if err != nil {
+// 		return 0, errors.Wrap(err, "failed to get redis client")
+// 	}
+
+// 	defer client.Close()
+
+// 	err = client.Get(target).Err()
+
+// 	if err == redis.Nil {
+
+// 		err = client.Set(target, 0, time.Hour*24).Err()
+// 		if err != nil {
+// 			return -1, errors.Wrap(err, "failed to get redis client")
+// 		}
+// 	} else if err != nil {
+// 		return -1, errors.Wrapf(err, "failed to get %s", target)
+// 	} else {
+// 		currentNum, err := client.Decr(target).Result()
+// 		if err != nil {
+// 			return currentNum, errors.Wrapf(err, "failed to incr %s", target)
+// 		}
+// 		log.Printf("currentNum is %d\n", currentNum)
+// 	}
+// 	return 0, nil
+// }
 func declValue(target string) (int64, error) {
 	redisPath := os.Getenv("REDIS_PATH")
 	client, err := redis.New(redisPath)
-
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to get redis client")
 	}
-
 	defer client.Close()
-
-	err = client.Get(target).Err()
-
-	if err == redis.Nil {
-
-		err = client.Set(target, 0, time.Hour*24).Err()
-		if err != nil {
-			return -1, errors.Wrap(err, "failed to get redis client")
-		}
-	} else if err != nil {
-		return -1, errors.Wrapf(err, "failed to get %s", target)
-	} else {
-		currentNum, err := client.Decr(target).Result()
-		if err != nil {
-			return currentNum, errors.Wrapf(err, "failed to incr %s", target)
-		}
-		log.Printf("currentNum is %d\n", currentNum)
+	currentNum, err := client.Decr(target).Result()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to decr CLIENT_NUM")
 	}
-	return 0, nil
+	return currentNum, nil
 }
 
 func postMessage(message string) error {
