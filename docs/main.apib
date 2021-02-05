@@ -19,9 +19,7 @@ HOST: http://localhost
 
 # Group ドア関連
 
-## ドアの開閉状況を通知する [/ws: POST_DOOR]
-
-### ドアの開閉状況を通知 [POST]
+## ドアの開閉状況を投げる [POST /ws: POST_DOOR]
 
 + Request (application/json)
     + Attributes
@@ -33,33 +31,66 @@ HOST: http://localhost
         + status: `SUCCESS` (string) - 登録結果
         + error: false (boolean) - サーバーの生死
 
-# Group 認証関連
-
-まだ準備中
-
 # Group ユーザー関連
 
-## 認証されたユーザー数を確認する [/users]
+## 認証されたユーザーの情報を通知する [POST /ws:POST_ACCEPT_USER]
 
-### 認証されたユーザーの数を取得する [GET /users/authenticated]
++ Request (application/json)
+    + Attributes
+        + action:POST_ACCEPT_USER (string,required) - アクションタイプの指定
+        + uuid: TTTTTTTT-TTTT-1TTT-sSSS-AAAAAAAAAAAA (string,required) - 一意に定まれば何でも良き
+        + name: notch_man (string,required) - 認証されたユーザー名が分かると望ましい。分からないときは空文字か適当な名前を入れて貰うと助かります（nullチェック怠いので）
++ Response (application/json)
+    + Attributes
+        + action:POST_ACCEPT_USER (string,required) - アクションタイプを返す
+        + status: OK - 実行結果を返す。OKかログが返る
+        + error: false - フラグでエラー判定。trueの場合はstatusにログが入ってます
+
+## 認証拒絶されたユーザーの情報を通知する [POST /ws:POST_DENIED_USER]
+
++ Request (application/json)
+    + Attributes
+        + action:POST_DENIED_USER (string,required) - アクションタイプの指定
+        + uuid: TTTTTTTT-TTTT-1TTT-sSSS-AAAAAAAAAAAA (string,required) - 一意に定まれば何でも良き
+        + name: 不審者X (string,required) - 拒否されたらユーザー名分からんよな。かっこいい名前送ってちょーだい！
+
++ Response (application/json)
+    + Attributes
+        + action:POST_DENIED_USER (string,required) - アクションタイプを返す
+        + status: OK - 実行結果を返す。OKかログが返る
+        + error: false - フラグでエラー判定。trueの場合はstatusにログが入ってます
+
+## 認証されたユーザーの数を取得する [GET /ws:ACCEPT_USER]
+
++ Request (application/json)
+    + Attributes
+        + action:ACCEPT_USER (string,required) - アクションタイプの指定
 
 + Response 200 (application/json)
     + Attributes
+        + action:ACCEPT_USER (string,required) - アクションタイプの指定
         + status: 'SUCCESS' (string) - APIの実行結果
         + count: 10 (number) - 認証されたユーザー数を格納する
 
-### リジェクトされたユーザーの数を取得する [GET /users/rejected]
+## リジェクトされたユーザーの数を取得する [GET /ws:DENIED_USER]
+
++ Request (application/json)
+    + Attributes
+        + action: DENIED_USER (string,required)
 
 + Response 200 (application/json)
     + Attributes
+        + action: DENIED_USER (string)
         + status: 'SUCCESS' (string) - APIの実行結果
         + count: 10 (number) - 認証されたユーザー数を格納する
 
 # Group ログ関連
 
-## エラーログ [/log/error]
+## エラーログの一覧を取得する [GET /ws:ERROR_LOGS]
 
-### エラーログの一覧を取得する [GET /log/error]
++ Request
+    + Attributes
+        + action: ERROR_LOGS (string,required) - アクションタイプの指定
 
 + Response 200 (application/json)
     + Attributes
@@ -69,13 +100,16 @@ HOST: http://localhost
                 + timestamp: '2021-01-10T13:50:40+09:00' (string) - ISO8601準拠のタイムスタンプ
                 + imageUrl: 'http://example.com/picture/camera.jpg' (string) - 画像のアクセスリンク
 
-### エラーログの数を取得する [GET /log/count]
+
+## エラーログの数を取得する [GET /ws:LOG_COUNT]
+
++ Request (application/json)
+    + Attributes
+        + action: LOG_COUNT (string,required) - アクションタイプの指定
 
 + Response 200 (application/json)
     + Attributes
         + count: 10 (number) - エラーログの数
-
-
 
 # Group 謎機能
 
@@ -85,6 +119,7 @@ HOST: http://localhost
     + Attributes
         + action: MEIDO_VOTE (string,required) - アクションタイプ
         + message: 'にゃ～ん' (string,required) - 推しへの愛のメッセージを投下
+        
 + Response 200(application/json)
     + Attributes
         + action: MEIDO_VOTE (string) - アクションタイプ
@@ -152,6 +187,7 @@ HOST: http://localhost
 + Request (application/json)
     + Attributes
         + action: SYSTEM_STATUS (string,required) - アクションタイプを指定
+        
 + Response (application/json)
     + Attributes
         + action: SYSTEM_STATUS (string) - アクションタイプ

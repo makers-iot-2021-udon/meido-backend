@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"main/persistence/redis"
 	"os"
@@ -49,63 +48,63 @@ const doorTarget = "doorTarget"
 var errorResponse = []byte(`{"action":"ERROR_MESSAGE","status":"NG","error": true}`)
 var defaultMeidoStatus = []byte(`{"action":"MEIDO_STATUS","status":"FINE","error":false}`)
 
-func handler(s []byte) []byte {
+func handler(s []byte) ([]byte, bool) {
 	var r Request
 	if err := json.Unmarshal(s, &r); err != nil {
-		return errorResponse
+		return errorResponse, false
 	}
 
 	switch {
 	case r.Action == "POST_DOOR":
 		r, err := doorHandler()
 		if err != nil {
-			return errorResponse
+			return errorResponse, false
 		}
 
-		return r
+		return r, false
 	case r.Action == "MEIDO_VOTE":
 		r, err := voteHandler(r.Message)
 		if err != nil {
-			return errorResponse
+			return errorResponse, false
 		}
-		return r
+		return r, false
 
 	//Todo 何らかの形で実装したい
 	case r.Action == "MEIDO_STAUTS":
-		return defaultMeidoStatus
+		return defaultMeidoStatus, false
 
 	case r.Action == "SYSTEM_STATUS":
-		return []byte(`{"action":"SYSTEM_STATUS","status":"FINE","error":false}`)
+		return []byte(`{"action":"SYSTEM_STATUS","status":"FINE","error":false}`), false
 
 	case r.Action == "MEIDO_COUNT":
 		r, err := connectionCountHandler()
 		if err != nil {
-			return errorResponse
+			return errorResponse, false
 		}
-		return r
+		return r, true
 
 	case r.Action == "GET_MESSAGE":
 		r, err := messageHandler()
 		if err != nil {
-			return errorResponse
+			return errorResponse, false
 		}
-		return r
+		return r, false
 
 	// こいつ使わんでもよさげ
 	case r.Action == "MEIDO_FUN":
 		r, err := doorHandler()
 		if err != nil {
-			return errorResponse
+			return errorResponse, false
 		}
-		return r
+		return r, false
 	case r.Action == "MEIDO_MESSAGE":
 		r, err := connectHandler()
 		if err != nil {
-			return errorResponse
+			return errorResponse, false
 		}
-		return r
+		return r, false
 	}
-	return errorResponse
+	return errorResponse, false
 }
 
 func messageHandler() ([]byte, error) {
@@ -134,7 +133,7 @@ func connectionCountHandler() ([]byte, error) {
 	}
 	var _count int64 = 0
 	_count, err = declValue(connectionTarget)
-	fmt.Println(_count)
+	//fmt.Println(_count)
 	r := CountMessage{
 		Action: "MEIDO_COUNT",
 		Count:  _count,
