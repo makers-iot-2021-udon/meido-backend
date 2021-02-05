@@ -1,3 +1,3 @@
 #!/bin/bash
 
-aglio -i main.apib -o index.html
+aglio --theme-variables slate -i main.apib -o index.html
