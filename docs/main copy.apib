@@ -24,7 +24,6 @@ HOST: http://localhost
 + Request (application/json)
     + Attributes
         + action: POST_DOOR (string,required) - アクションタイプ
-        + message: OPEN (string,required) - ドアの開閉状況をメッセージに格納してください
  
 + Response 200 (application/json)
     + Attributes
@@ -32,7 +31,18 @@ HOST: http://localhost
         + status: SUCCESS (string) - 登録結果
         + error: false (boolean) - サーバーの生死
 
-# Group 認証関連
+## ドアの開閉状況を投げる [POST /ws: GET_DOOR]
+
++ Request (application/json)
+    + Attributes
+        + action: GET_DOOR (string,required) - アクションタイプ
+ 
++ Response 200 (application/json)
+    + Attributes
+        + action: GET_DOOR (string) - アクションタイプ
+        + message: OPEN (string) - ドアの状態を返す
+
+# Group ユーザー関連
 
 ## 認証されたユーザーの情報を通知する [POST /ws:POST_ACCEPT_USER]
 
@@ -44,10 +54,8 @@ HOST: http://localhost
 + Response (application/json)
     + Attributes
         + action:POST_ACCEPT_USER (string,required) - アクションタイプを返す
-        + status: OK (string) - 実行結果を返す。OKかログが返る
-        + error: false (boolean) - フラグでエラー判定。trueの場合はstatusにログが入ってます
-        + count: 10 (number) - 許可済みユーザーの累計が入ります
-        + name: notch_man (string) - 許可された人の名前が通知されます
+        + status: OK - 実行結果を返す。OKかログが返る
+        + error: false - フラグでエラー判定。trueの場合はstatusにログが入ってます
 
 ## 認証拒絶されたユーザーの情報を通知する [POST /ws:POST_DENIED_USER]
 
@@ -60,10 +68,8 @@ HOST: http://localhost
 + Response (application/json)
     + Attributes
         + action:POST_DENIED_USER (string,required) - アクションタイプを返す
-        + status: OK (string) - 実行結果を返す。OKかログが返る
-        + error: false (boolean) - フラグでエラー判定。trueの場合はstatusにログが入ってます
-        + count: 10 (number) - 拒絶済みユーザーの累計が入ります
-        + name: notch_man (string) - 拒絶された人の名前が通知されます
+        + status: OK - 実行結果を返す。OKかログが返る
+        + error: false - フラグでエラー判定。trueの場合はstatusにログが入ってます
 
 ## 認証されたユーザーの数を取得する [GET /ws:ACCEPT_USER]
 
@@ -74,6 +80,7 @@ HOST: http://localhost
 + Response 200 (application/json)
     + Attributes
         + action:ACCEPT_USER (string,required) - アクションタイプの指定
+        + status: 'SUCCESS' (string) - APIの実行結果
         + count: 10 (number) - 認証されたユーザー数を格納する
 
 ## リジェクトされたユーザーの数を取得する [GET /ws:DENIED_USER]
@@ -85,6 +92,7 @@ HOST: http://localhost
 + Response 200 (application/json)
     + Attributes
         + action: DENIED_USER (string)
+        + status: 'SUCCESS' (string) - APIの実行結果
         + count: 10 (number) - 認証されたユーザー数を格納する
 
 # Group ログ関連

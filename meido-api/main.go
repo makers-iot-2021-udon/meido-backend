@@ -17,6 +17,8 @@ var upgrader = websocket.Upgrader{
 }
 
 var CLIENT_NUM = "CLIENT_NUM"
+var ACCEPT_USER = "ACCEPT_USER"
+var DENIED_USER = "DENIED_USER"
 var Clients = make(map[*websocket.Conn]bool)
 var MultiBroadcast = make(chan []byte)
 var Broadcast = make(chan []byte)
