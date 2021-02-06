@@ -21,7 +21,7 @@ jobs:
     - name: docker login
       env:
         DOCKERHUB_USER: ${{ secrets.dockerhub_user }}
-        DOCKERHUB_PASS: ${{ secrets.dockerhub_pass }}
+        DOCKERHUB_PASS: ${{ secrets.dockerhub_password }}
       run: docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
     - name: push image
       env:
