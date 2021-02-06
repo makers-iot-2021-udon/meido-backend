@@ -1,0 +1,49 @@
+name: BuildDeploy
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: build image
+      env:
+        SHA: ${{ github.sha }}
+      run: |
+        echo $SHA
+        dt=`date`
+        sed -i -e "s/<DATE>/$dt/" index.html
+        docker build ./meido-api --tag notchman/meido-app:$SHA
+    - name: docker login
+      env:
+        DOCKERHUB_USER: ${{ secrets.dockerhub_user }}
+        DOCKERHUB_PASS: ${{ secrets.dockerhub_pass }}
+      run: docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
+    - name: push image
+      env:
+        SHA: ${{ github.sha }}
+      run: docker push notchman/meido-app:$SHA
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@master
+    - name: deploy image
+      env:
+        GCP_KEY: ${{ secrets.gcp_key }}
+        SHA: ${{ github.sha }}
+      run: |
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > google-cloud-sdk.list
+        sudo cp google-cloud-sdk.list /etc/apt/sources.list.d
+        curl https://packages.cloud.google.com/apt/doc/apt-key.gpg > apt-key.gpg
+        sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add apt-key.gpg
+        sudo apt-get update
+        sudo apt-get install google-cloud-sdk kubectl
+        echo $GCP_KEY > gcp_key.json
+        gcloud auth activate-service-account --project=sapient-depot-302603 --key-file=gcp_key.json
+        gcloud container clusters get-credentials --zone us-west1-a meido
+        echo $SHA
+        kubectl apply -f ./meido-api/deploy.yml
+        kubectl get pods -o yaml
