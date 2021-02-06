@@ -48,6 +48,6 @@ jobs:
         gcloud auth activate-service-account --project=sapient-depot-302603 --key-file=gcp_key.json
         gcloud container clusters get-credentials meido --zone us-west1-a
         echo $SHA
-        sed -i -e "s/<BACKIMAGE>/notchman\/meido-app:$SHA/" ./meido-api/deploy.yaml
-        kubectl apply -f ./meido-api/deploy.yaml
+        sed -i -e "s/<BACKIMAGE>/notchman\/meido-app:$SHA/" ./yamls/meido/deploy.yaml
+        kubectl apply -f ./yamls/meido/deploy.yaml
         kubectl get pods -o yaml
