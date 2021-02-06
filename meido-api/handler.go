@@ -32,9 +32,14 @@ type MeidoMessage struct {
 	Error   bool   `json:"error"`
 }
 
+// type Message struct {
+// 	Action   string   `json:"action"`
+// 	Messages []string `json:"messages"`
+// }
+
 type Message struct {
-	Action   string   `json:"action"`
-	Messages []string `json:"messages"`
+	Action  string `json:"action"`
+	Message string `json:"message"`
 }
 
 type CountMessage struct {
@@ -128,8 +133,8 @@ func handler(s []byte) ([]byte, bool) {
 		}
 		return r, true
 
-	case r.Action == "GET_MESSAGE":
-		r, err := messageHandler()
+	case r.Action == "POST_MESSAGE":
+		r, err := messageHandler(r.Message)
 		if err != nil {
 			return errorResponse, false
 		}
@@ -152,15 +157,16 @@ func handler(s []byte) ([]byte, bool) {
 	return errorResponse, false
 }
 
-func messageHandler() ([]byte, error) {
-	messages, err := getMessages()
+//Todo これはオウム返しを全体配信するだけ
+func messageHandler(message string) ([]byte, error) {
+	//DBに記録する
+	err := saveMessage(message)
 	if err != nil {
 		return nil, err
 	}
-
 	r := Message{
-		Messages: messages,
-		Action:   "MEIDO_MESSAGE",
+		Message: message,
+		Action:  "POST_MESSAGE",
 	}
 	b, err := json.Marshal(r)
 	if err != nil {
@@ -274,7 +280,7 @@ func voteHandler(message string) ([]byte, error) {
 	log.Println(message)
 
 	//ここでポスト
-	err := postMessage(message)
+	err := saveMessage(message)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed")
 	}
@@ -302,7 +308,7 @@ func getMessages() ([]string, error) {
 	log.Println(lrangeVal)
 
 	if err == redis.Nil {
-		err = postMessage("Hello")
+		err = saveMessage("HELLO_WORLD")
 		if err != nil {
 			return nil, err
 		} else {
@@ -319,6 +325,29 @@ func getMessages() ([]string, error) {
 
 	}
 	return nil, nil
+}
+
+func saveMessage(message string) error {
+	redisPath := os.Getenv("REDIS_PATH")
+	client, err := redis.New(redisPath)
+
+	if err != nil {
+		return errors.Wrap(err, "failed to get redis client")
+	}
+
+	defer client.Close()
+
+	err = client.RPush(messageTarget, message).Err()
+	if err != nil {
+		return errors.Wrapf(err, "failed to get redis client")
+	} else {
+		err = client.Do("DEL", messageTarget).Err()
+		if err != nil {
+			log.Println(err, "failed to delete message from redis")
+		}
+		return nil
+	}
+	return nil
 }
 
 //ユーザーのカウント
@@ -468,33 +497,33 @@ func declValue(target string) (int64, error) {
 	return currentNum, nil
 }
 
-func postMessage(message string) error {
+// func postMessage(message string) error {
 
-	redisPath := os.Getenv("REDIS_PATH")
-	client, err := redis.New(redisPath)
-	if err != nil {
-		return errors.Wrap(err, "failed to get redis client")
-	}
+// 	redisPath := os.Getenv("REDIS_PATH")
+// 	client, err := redis.New(redisPath)
+// 	if err != nil {
+// 		return errors.Wrap(err, "failed to get redis client")
+// 	}
 
-	defer client.Close()
+// 	defer client.Close()
 
-	err = client.Get(messageTarget).Err()
+// 	err = client.Get(messageTarget).Err()
 
-	if err == redis.Nil {
-		err = client.Set(messageTarget, message, time.Hour*24).Err()
-		if err != nil {
-			return errors.Wrap(err, "failed to get redis client")
-		}
-	} else if err != nil {
-		return errors.Wrapf(err, "failed to get %s", messageTarget)
-	} else {
-		err = client.Append(messageTarget, message).Err()
-		if err != nil {
-			return errors.Wrapf(err, "failed to incr %s", messageTarget)
-		}
-	}
-	return nil
-}
+// 	if err == redis.Nil {
+// 		err = client.Set(messageTarget, message, time.Hour*24).Err()
+// 		if err != nil {
+// 			return errors.Wrap(err, "failed to get redis client")
+// 		}
+// 	} else if err != nil {
+// 		return errors.Wrapf(err, "failed to get %s", messageTarget)
+// 	} else {
+// 		err = client.Append(messageTarget, message).Err()
+// 		if err != nil {
+// 			return errors.Wrapf(err, "failed to incr %s", messageTarget)
+// 		}
+// 	}
+// 	return nil
+// }
 
 func getDoorState(message string) (string, error) {
 

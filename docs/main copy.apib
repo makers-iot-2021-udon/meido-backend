@@ -163,17 +163,34 @@ HOST: http://localhost
         + action: MEIDO_COUNT (string) - アクションタイプ
         + count: 10 (number) - 接続中のユーザー数
 
-## メイドに送られた推しメッセージを取得 [GET /ws: GET_MESSAGE] 
 
-注意：このAPIを叩くと以前に投稿された推しへのメッセージは全て無くなります
+## メイドに送られた推しメッセージを取得:deprecated  [POST /ws: POST_MESSAGE] 
+
+注意：このAPIを叩くと以前に投稿された推しへのメッセージは全て無くなります。
+あとこれを叩くと接続中の全ユーザーにメッセージが流れます。
 
 + Request (application/json)
     + Attributes
-        + action: MEIDO_MESSAGE (string,required) - アクションタイプの指定
+        + action: POST_MESSAGE (string,required) - アクションタイプの指定
+        + message: 愛してるよ～、にゃ～ん (string,required) - 推しへの愛のメッセージ
 
 + Response 200 (application/json)
     + Attributes
-        + action: MEIDO_MESSAGE (string) - アクションタイプ
+        + action: POST_MESSAGE (string) - アクションタイプ
+        + message (string) - 推しへの愛のメッセージ
+
+## メイドに送られた推しメッセージを取得:obsoleted [GET /ws: GET_MESSAGE] 
+
+注意：このAPIを叩くと以前に投稿された推しへのメッセージは全て無くなります。
+このAPIは実装されていません
+
++ Request (application/json)
+    + Attributes
+        + action: GET_MESSAGE (string,required) - アクションタイプの指定
+
++ Response 200 (application/json)
+    + Attributes
+        + action: GET_MESSAGE (string) - アクションタイプ
         + messages (array[string])
             + ありがとなす (string) - 推しからのメッセージ
             + ありがとなす (string) - 推しからのメッセージ

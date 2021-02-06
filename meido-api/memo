@@ -1,3 +1,3 @@
-docker build -t notchman/meido-app
+docker build -t notchman/meido-app .
 docker tag <imageid> notchman/meido-app:<Tag>
 docker push notchman/meido-app:<Tag>
