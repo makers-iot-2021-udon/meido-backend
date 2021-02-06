@@ -46,7 +46,7 @@ jobs:
         sudo apt-get install google-cloud-sdk kubectl
         echo $GCP_KEY > gcp_key.json
         gcloud auth activate-service-account --project=sapient-depot-302603 --key-file=gcp_key.json
-        gcloud container clusters get-credentials --zone us-west1-a meido
+        gcloud container clusters get-credentials meido --zone us-west1-a
         echo $SHA
         sed -i -e "s/<BACKIMAGE>/notchman\/meido-app:$SHA/" ./meido-api/deploy.yaml
         kubectl apply -f ./meido-api/deploy.yaml
