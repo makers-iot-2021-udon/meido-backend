@@ -12,8 +12,6 @@ jobs:
         SHA: ${{ github.sha }}
       run: |
         echo $SHA
-        dt=`date`
-        sed -i -e "s/<DATE>/$dt/" index.html
         docker build ./meido-api --tag notchman/meido-app:$SHA
     - name: docker login
       env:
