@@ -138,7 +138,7 @@ func handler(s []byte) ([]byte, bool) {
 		if err != nil {
 			return errorResponse, false
 		}
-		return r, false
+		return r, true
 
 	// こいつ使わんでもよさげ
 	// case r.Action == "MEIDO_FUN":

@@ -25,27 +25,27 @@ spec:
 
 # ---
 
-# apiVersion: networking.k8s.io/v1beta1
-# kind: Ingress
-# metadata:
-#   name: meido-ingress-static
-#   namespace: meido
-#   annotations:
-#     kubernetes.io/ingress.class: nginx
-#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-#     cert-manager.io/cluster-issuer: letsencrypt
-# spec:
-#   tls:
-#     - hosts:
-#       - meido-app.cf
-#       secretName: tls-secret-prod
-#   rules:
-#   - host: meido-app.cf
-#     http:
-#       paths:
-#       - pathType: Prefix
-#         path: "/(.*)"
-#         backend:
-#           service:
-#             serviceName: meido-front
-#             servicePort: 80
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: meido-ingress-static
+  namespace: meido
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+    - hosts:
+      - meido-app.cf
+      secretName: tls-secret-prod
+  rules:
+  - host: meido-app.cf
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/liff(/|$)(.*)"
+        backend:
+          service:
+            serviceName: meido-webapp
+            servicePort: 80
