@@ -86,13 +86,13 @@ func handler(s []byte) ([]byte, bool) {
 
 	// 	return r,true
 	case r.Action == "POST_ACCEPT_USER":
-		r, err := certUserHandler(acceptTarget, r.Name, "POST_ACCEPT_USER")
+		r, err := certUserHandler(acceptTarget, r.Name, r.Uid, "POST_ACCEPT_USER")
 		if err != nil {
 			return errorResponse, false
 		}
 		return r, true
 	case r.Action == "POST_DENIED_USER":
-		r, err := certUserHandler(deniedTarget, r.Name, "POST_DENIED_USER")
+		r, err := certUserHandler(deniedTarget, r.Name, r.Uid, "POST_DENIED_USER")
 		if err != nil {
 			return errorResponse, false
 		}
@@ -141,6 +141,12 @@ func handler(s []byte) ([]byte, bool) {
 		}
 		return r, true
 
+	case r.Action == "LOG_COUNT":
+		return []byte(`{"action":"LOG_COUNT","count":0}`), false
+
+	case r.Action == "ERROR_LOGS":
+		return []byte(`{"action":"ERROR_LOGS","logs":[{"camera_name": "カメラ1","timestamp": "2021","imageUrl": "http://example.com/picture/camera.jpg"}]}`), false
+
 	// こいつ使わんでもよさげ
 	// case r.Action == "MEIDO_FUN":
 	// 	r, err := doorHandler()
@@ -182,6 +188,7 @@ func messageHandler(message string) ([]byte, error) {
 func countUpUserHandler(target string, actionType string) ([]byte, error) {
 	count, err := countUser(target)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -199,8 +206,8 @@ func countUpUserHandler(target string, actionType string) ([]byte, error) {
 	return b, nil
 }
 
-func certUserHandler(target string, name string, actionType string) ([]byte, error) {
-	count, err := addCertUser(target, name)
+func certUserHandler(target string, name string, uid string, actionType string) ([]byte, error) {
+	count, err := addCertUser(target, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -384,8 +391,6 @@ func addValue(target string) error {
 	return nil
 }
 
-//ユーザーの追加と値返し
-
 //絶対に増えない人
 func countUser(target string) (int64, error) {
 	redisPath := os.Getenv("REDIS_PATH")
@@ -402,8 +407,8 @@ func countUser(target string) (int64, error) {
 	if err != nil {
 		return 0, errors.Wrapf(err, "failed to get %s", target)
 	} else {
-		err := client.SCard(target).Err()
-		currentNum := client.SCard(target).Val()
+		// err := client.SCard(target).Err()
+		currentNum, err := client.SCard(target).Result()
 		if err != nil {
 			return -1, errors.Wrapf(err, "failed to count %s", target)
 		} else {
@@ -443,8 +448,8 @@ func addCertUser(target string, name string) (int64, error) {
 		log.Println(err)
 		return -1, errors.Wrapf(err, "failed to get %s", target)
 	} else {
-		err := client.SAdd(target, name).Err()
-		currentNum := client.SCard(target).Val()
+		//err := client.SAdd(target, name).Err()
+		currentNum, err := client.SCard(target).Result()
 		if err != nil {
 			log.Println(err)
 			return -1, errors.Wrapf(err, "failed to incr %s", target)
