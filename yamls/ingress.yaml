@@ -23,7 +23,7 @@ spec:
               servicePort: 80
             path: /backend(/|$)(.*)
 
-# ---
+---
 
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -43,9 +43,7 @@ spec:
   - host: meido-app.cf
     http:
       paths:
-      - pathType: Prefix
-        path: "/liff(/|$)(.*)"
-        backend:
-          service:
-            serviceName: meido-webapp
-            servicePort: 80
+      - backend:
+          serviceName: meido-webapp
+          servicePort: 80
+        path: /liff(/|$)(.*)
