@@ -58,14 +58,14 @@ func reader(conn *websocket.Conn) {
 			for client := range Clients {
 				if err := client.WriteMessage(messageType, p); err != nil {
 					log.Println(err)
-					return
+					//return
 				}
 			}
 			//Broadcast <- p
 		} else {
 			if err := conn.WriteMessage(messageType, p); err != nil {
 				log.Println(err)
-				return
+				//	return
 			}
 		}
 	}
