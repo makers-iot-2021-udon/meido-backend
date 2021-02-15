@@ -49,5 +49,8 @@ jobs:
         gcloud container clusters get-credentials meido --zone us-west1-a
         echo $SHA
         sed -i -e "s/<BACKIMAGE>/notchman\/meido-app:$SHA/" ./yamls/meido/deploy.yaml
+        kubectl delete -f ./yamls/redis/deployment.yaml
+        kubectl apply -f ./yamls/redis/deployment.yaml
         kubectl apply -f ./yamls/meido/deploy.yaml
         kubectl get pods -o yaml
+        
