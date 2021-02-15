@@ -10,14 +10,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func certUserHandler(target string, name string, uid string, actionType string) ([]byte, error) {
+func certUserHandler(target string, name string, uid string, certMessage string, actionType string) ([]byte, error) {
 	count, err := addCertUser(target, uid)
 	if err != nil {
 		return nil, err
 	}
 	r := CertStatusMessage{
 		Action: actionType,
-		Status: "SUCCESS",
+		Status: certMessage,
 		Error:  false,
 		Count:  count,
 		Name:   name,

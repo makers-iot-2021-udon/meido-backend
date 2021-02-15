@@ -60,6 +60,8 @@ const messageTarget = "messages"
 const doorTarget = "doorTarget"
 const acceptTarget = "acceptTarget"
 const deniedTarget = "deniedTarget"
+const acceptMessage = "SUCCESS"
+const deniedMessage = "REJECTED"
 
 var errorResponse = []byte(`{"action":"ERROR_MESSAGE","status":"NG","error": true}`)
 var defaultMeidoStatus = []byte(`{"action":"MEIDO_STATUS","status":"Available","error":false}`)
@@ -86,13 +88,13 @@ func handler(s []byte) ([]byte, bool) {
 
 	// 	return r,true
 	case r.Action == "POST_ACCEPT_USER":
-		r, err := certUserHandler(acceptTarget, r.Name, r.Uid, "POST_ACCEPT_USER")
+		r, err := certUserHandler(acceptTarget, r.Name, r.Uid, acceptMessage, "POST_ACCEPT_USER")
 		if err != nil {
 			return errorResponse, false
 		}
 		return r, true
 	case r.Action == "POST_DENIED_USER":
-		r, err := certUserHandler(deniedTarget, r.Name, r.Uid, "POST_DENIED_USER")
+		r, err := certUserHandler(deniedTarget, r.Name, r.Uid, deniedMessage, "POST_DENIED_USER")
 		if err != nil {
 			return errorResponse, false
 		}
