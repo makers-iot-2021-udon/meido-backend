@@ -37,7 +37,7 @@ func broadcastMessageToClients() {
 	for {
 		select {
 		case message := <-StatusBroadCast:
-			log.Println("Dispatched")
+			// log.Println("Dispatched")
 			// クライアントの数だけループ
 			for client := range Clients {
 				//　書き込む
