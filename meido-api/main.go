@@ -20,24 +20,55 @@ const CLIENT_NUM = "CLIENT_NUM"
 const ACCEPT_USER = "ACCEPT_USER"
 const DENIED_USER = "DENIED_USER"
 
+type ByteBroadCast struct {
+	Message []byte
+	Type    int
+	Conn    *websocket.Conn
+}
+
 var Clients = make(map[*websocket.Conn]bool)
-var MultiBroadcast = make(chan []byte)
-var Broadcast = make(chan CurrentStatusMessage)
+var Broadcast = make(chan ByteBroadCast)
+var StatusBroadCast = make(chan CurrentStatusMessage)
+var MultiBroadCast = make(chan ByteBroadCast)
+
+// var ch = make(chan bool)
 
 func broadcastMessageToClients() {
 	for {
-		// メッセージ受け取り
-		message := currentStatus()
-		// クライアントの数だけループ
-		for client := range Clients {
-			//　書き込む
-			err := client.WriteJSON(message)
-			if err != nil {
-				log.Printf("error occurred while writing message to client: %v", err)
-				client.Close()
-				delete(Clients, client)
+		select {
+		case message := <-StatusBroadCast:
+			log.Println("Dispatched")
+			// クライアントの数だけループ
+			for client := range Clients {
+				//　書き込む
+				err := client.WriteJSON(message)
+				if err != nil {
+					log.Printf("error occurred while writing message to client: %v", err)
+					client.Close()
+					delete(Clients, client)
+				}
+			}
+
+		case p := <-Broadcast:
+			if err := p.Conn.WriteMessage(p.Type, p.Message); err != nil {
+				log.Println(err)
+				//	return
+			}
+
+		case p := <-MultiBroadCast:
+			for client := range Clients {
+				if err := client.WriteMessage(p.Type, p.Message); err != nil {
+					log.Println(err)
+					//return
+				}
 			}
 		}
+	}
+}
+
+func sendStatusRoutines() {
+	for {
+		StatusBroadCast <- currentStatus()
 		time.Sleep(10 * time.Second)
 	}
 }
@@ -58,21 +89,29 @@ func reader(conn *websocket.Conn) {
 		//ここは同期的な処理だから特定のタイミングでAPI側からのメッセージを送信することも可能か（システムステータスなど）
 
 		if flag {
-			//全体メッセージ
-			for client := range Clients {
-				if err := client.WriteMessage(messageType, p); err != nil {
-					log.Println(err)
-					//return
-				}
+			// //全体メッセージ
+			// for client := range Clients {
+			// 	if err := client.WriteMessage(messageType, p); err != nil {
+			// 		log.Println(err)
+			// 		//return
+			// 	}
+			// }
+			MultiBroadCast <- ByteBroadCast{
+				Type:    messageType,
+				Message: p,
 			}
-			//Broadcast <- p
 		} else {
-			if err := conn.WriteMessage(messageType, p); err != nil {
-				log.Println(err)
-				//	return
+			// if err := conn.WriteMessage(messageType, p); err != nil {
+			// 	log.Println(err)
+			// 	//	return
+
+			// }
+			MultiBroadCast <- ByteBroadCast{
+				Type:    messageType,
+				Message: p,
+				Conn:    conn,
 			}
 		}
-
 		// //接続中の全ユーザーにパラメーターに現在のパラメーターを書き込む
 		// statusMessage := currentStatus()
 
@@ -93,7 +132,6 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
-	go broadcastMessageToClients()
 
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -142,5 +180,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Hello world")
 	setupRoutes()
+	go broadcastMessageToClients()
+	go sendStatusRoutines()
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }

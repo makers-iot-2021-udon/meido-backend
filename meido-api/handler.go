@@ -62,7 +62,7 @@ const acceptTarget = "acceptTarget"
 const deniedTarget = "deniedTarget"
 
 var errorResponse = []byte(`{"action":"ERROR_MESSAGE","status":"NG","error": true}`)
-var defaultMeidoStatus = []byte(`{"action":"MEIDO_STATUS","status":"FINE","error":false}`)
+var defaultMeidoStatus = []byte(`{"action":"MEIDO_STATUS","status":"Available","error":false}`)
 
 func handler(s []byte) ([]byte, bool) {
 	var r Request
