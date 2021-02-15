@@ -22,12 +22,12 @@ const DENIED_USER = "DENIED_USER"
 
 var Clients = make(map[*websocket.Conn]bool)
 var MultiBroadcast = make(chan []byte)
-var Broadcast = make(chan []byte)
+var Broadcast = make(chan CurrentStatusMessage)
 
 func broadcastMessageToClients() {
 	for {
 		// メッセージ受け取り
-		message := <-Broadcast
+		message := currentStatus()
 		// クライアントの数だけループ
 		for client := range Clients {
 			//　書き込む
@@ -38,11 +38,13 @@ func broadcastMessageToClients() {
 				delete(Clients, client)
 			}
 		}
+		time.Sleep(10 * time.Second)
 	}
 }
 
 func reader(conn *websocket.Conn) {
 	for {
+		// Broadcast <- currentStatus()
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
@@ -71,14 +73,14 @@ func reader(conn *websocket.Conn) {
 			}
 		}
 
-		//接続中の全ユーザーにパラメーターに現在のパラメーターを書き込む
-		statusMessage := currentStatus()
+		// //接続中の全ユーザーにパラメーターに現在のパラメーターを書き込む
+		// statusMessage := currentStatus()
 
-		for client := range Clients {
-			if err := client.WriteMessage(messageType, statusMessage); err != nil {
-				log.Println(err)
-			}
-		}
+		// for client := range Clients {
+		// 	if err := client.WriteMessage(messageType, statusMessage); err != nil {
+		// 		log.Println(err)
+		// 	}
+		// }
 	}
 }
 
@@ -91,13 +93,14 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
-	//go broadcastMessageToClients()
+	go broadcastMessageToClients()
+
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// defer ws.Close()
+	defer ws.Close()
 
 	Clients[ws] = true
 

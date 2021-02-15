@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 )
 
@@ -16,28 +15,38 @@ type CurrentStatusMessage struct {
 	AuthStatus      string `json:"auth_status`
 }
 
-func currentStatus() []byte {
+var errorStatusMessageResponse = CurrentStatusMessage{
+	Action:          "NOTIFY_CURRENT_STATUS",
+	ConnectingCount: 0,
+	AcceptUserCount: 0,
+	DeniedUserCount: 0,
+	ErrorLogCount:   0,
+	SystemStatus:    "Available",
+	AuthStatus:      "not working",
+}
+
+func currentStatus() CurrentStatusMessage {
 
 	//現在の接続ユーザーのカウント
 	err := addValue(CLIENT_NUM)
 	connectingCount, err := declValue(CLIENT_NUM)
 	if err != nil {
 		log.Println(err)
-		return errorResponse
+		return errorStatusMessageResponse
 	}
 
 	acceptCount, err := countUser(acceptTarget)
 
 	if err != nil {
 		log.Println(err)
+		return errorStatusMessageResponse
 
-		return errorResponse
 	}
 
 	deniedCount, err := countUser(deniedTarget)
 	if err != nil {
 		log.Println(err)
-		return errorResponse
+		return errorStatusMessageResponse
 	}
 
 	const errorLogCount int64 = 0
@@ -56,10 +65,10 @@ func currentStatus() []byte {
 		AuthStatus:      authStatus,
 	}
 
-	b, err := json.Marshal(r)
-	if err != nil {
-		log.Println("cannot marshal struct: %v", err)
-		return errorResponse
-	}
-	return b
+	// b, err := json.Marshal(r)
+	// if err != nil {
+	// 	log.Println("cannot marshal struct: %v", err)
+	// 	return errorResponse
+	// }
+	return r
 }

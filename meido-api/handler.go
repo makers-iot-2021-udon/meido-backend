@@ -90,13 +90,13 @@ func handler(s []byte) ([]byte, bool) {
 		if err != nil {
 			return errorResponse, false
 		}
-		return r, false
+		return r, true
 	case r.Action == "POST_DENIED_USER":
 		r, err := certUserHandler(deniedTarget, r.Name, r.Uid, "POST_DENIED_USER")
 		if err != nil {
 			return errorResponse, false
 		}
-		return r, false
+		return r, true
 
 	case r.Action == "ACCEPT_USER":
 		r, err := countUpUserHandler(acceptTarget, "ACCEPT_USER")
@@ -124,7 +124,7 @@ func handler(s []byte) ([]byte, bool) {
 		return defaultMeidoStatus, false
 
 	case r.Action == "SYSTEM_STATUS":
-		return []byte(`{"action":"SYSTEM_STATUS","status":"FINE","error":false}`), false
+		return []byte(`{"action":"SYSTEM_STATUS","status":"Available","error":false}`), false
 
 	case r.Action == "MEIDO_COUNT":
 		r, err := countPeopleHandler(connectionTarget)
