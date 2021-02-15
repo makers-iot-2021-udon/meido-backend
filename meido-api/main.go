@@ -27,7 +27,7 @@ type ByteBroadCast struct {
 }
 
 var Clients = make(map[*websocket.Conn]bool)
-var Broadcast = make(chan ByteBroadCast)
+var BroadCast = make(chan ByteBroadCast)
 var StatusBroadCast = make(chan CurrentStatusMessage)
 var MultiBroadCast = make(chan ByteBroadCast)
 
@@ -49,7 +49,7 @@ func broadcastMessageToClients() {
 				}
 			}
 
-		case p := <-Broadcast:
+		case p := <-BroadCast:
 			if err := p.Conn.WriteMessage(p.Type, p.Message); err != nil {
 				log.Println(err)
 				//	return
@@ -106,7 +106,7 @@ func reader(conn *websocket.Conn) {
 			// 	//	return
 
 			// }
-			MultiBroadCast <- ByteBroadCast{
+			BroadCast <- ByteBroadCast{
 				Type:    messageType,
 				Message: p,
 				Conn:    conn,
