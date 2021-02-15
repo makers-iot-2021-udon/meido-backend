@@ -16,9 +16,10 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-var CLIENT_NUM = "CLIENT_NUM"
-var ACCEPT_USER = "ACCEPT_USER"
-var DENIED_USER = "DENIED_USER"
+const CLIENT_NUM = "CLIENT_NUM"
+const ACCEPT_USER = "ACCEPT_USER"
+const DENIED_USER = "DENIED_USER"
+
 var Clients = make(map[*websocket.Conn]bool)
 var MultiBroadcast = make(chan []byte)
 var Broadcast = make(chan []byte)
@@ -39,6 +40,7 @@ func broadcastMessageToClients() {
 		}
 	}
 }
+
 func reader(conn *websocket.Conn) {
 	for {
 		messageType, p, err := conn.ReadMessage()
@@ -58,14 +60,23 @@ func reader(conn *websocket.Conn) {
 			for client := range Clients {
 				if err := client.WriteMessage(messageType, p); err != nil {
 					log.Println(err)
-					return
+					//return
 				}
 			}
 			//Broadcast <- p
 		} else {
 			if err := conn.WriteMessage(messageType, p); err != nil {
 				log.Println(err)
-				return
+				//	return
+			}
+		}
+
+		//接続中の全ユーザーにパラメーターに現在のパラメーターを書き込む
+		statusMessage := currentStatus()
+
+		for client := range Clients {
+			if err := client.WriteMessage(messageType, statusMessage); err != nil {
+				log.Println(err)
 			}
 		}
 	}
