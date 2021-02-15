@@ -107,6 +107,7 @@ HOST: http://localhost
 
 + Response 200 (application/json)
     + Attributes
+        + action ERROR_LOGS (string) - アクションタイプ
         + logs (array[object])
             + (object)
                 + camera_name: 'カメラ1' (string) - カメラ名
@@ -122,6 +123,7 @@ HOST: http://localhost
 
 + Response 200 (application/json)
     + Attributes
+        + action: LOG_COUNT (string,required) - アクションタイプ
         + count: 10 (number) - エラーログの数
 
 # Group 謎機能

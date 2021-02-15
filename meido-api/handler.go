@@ -136,9 +136,11 @@ func handler(s []byte) ([]byte, bool) {
 	case r.Action == "POST_MESSAGE":
 		r, err := messageHandler(r.Message)
 		if err != nil {
+			log.Println(err)
 			return errorResponse, false
 		}
-		return r, false
+		return r, true
+
 	case r.Action == "LOG_COUNT":
 		return []byte(`{"action":"LOG_COUNT","count":0}`), false
 
@@ -167,6 +169,7 @@ func messageHandler(message string) ([]byte, error) {
 	//DBに記録する
 	err := saveMessage(message)
 	if err != nil {
+		log.Println("Something wrong: %v", err)
 		return nil, err
 	}
 	r := Message{
