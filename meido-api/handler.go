@@ -14,7 +14,7 @@ type Request struct {
 	Action  string `json:"action"`
 	Message string `json:"message"`
 	Name    string `json:"name"`
-	Uid     string `json:"uid"`
+	Uid     string `json:"uuid"`
 }
 
 // APIやサーバーの状態を扱う(ドア・メイド・認証で用いる）

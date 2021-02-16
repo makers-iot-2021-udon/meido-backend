@@ -60,7 +60,11 @@ func addCertUser(target string, name string) (int64, error) {
 		log.Println(err)
 		return -1, errors.Wrapf(err, "failed to get %s", target)
 	} else {
-		//err := client.SAdd(target, name).Err()
+		err := client.SAdd(target, name).Err()
+		if err != nil {
+			log.Println("failed to insert accept user data", err)
+			return -1, errors.Wrapf(err, "failed to insert accept data", err)
+		}
 		currentNum, err := client.SCard(target).Result()
 		if err != nil {
 			log.Println(err)
@@ -83,7 +87,7 @@ func countUser(target string) (int64, error) {
 	}
 
 	defer client.Close()
-	err = client.Get(target).Err()
+	err = client.SRandMember(target).Err()
 
 	if err == redis.Nil {
 		//テーブルが作成されていない間はユーザーが存在しないので超法規的に0を返す
@@ -96,7 +100,7 @@ func countUser(target string) (int64, error) {
 		if err != nil {
 			return -1, errors.Wrapf(err, "failed to count %s", target)
 		} else {
-			log.Printf("currentNum is %d\n", currentNum)
+			log.Printf("currentAccept is %d\n", currentNum)
 			return currentNum, nil
 		}
 	}
