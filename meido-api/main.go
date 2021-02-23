@@ -30,7 +30,7 @@ var Clients = make(map[*websocket.Conn]bool)
 var BroadCast = make(chan ByteBroadCast)
 var StatusBroadCast = make(chan CurrentStatusMessage)
 var MultiBroadCast = make(chan ByteBroadCast)
-
+const provideTime = 5
 // var ch = make(chan bool)
 
 func broadcastMessageToClients() {
@@ -69,7 +69,7 @@ func broadcastMessageToClients() {
 func sendStatusRoutines() {
 	for {
 		StatusBroadCast <- currentStatus()
-		time.Sleep(10 * time.Second)
+		time.Sleep(provideTime * time.Second)
 	}
 }
 
