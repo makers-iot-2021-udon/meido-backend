@@ -30,7 +30,7 @@ var Clients = make(map[*websocket.Conn]bool)
 var BroadCast = make(chan ByteBroadCast)
 var StatusBroadCast = make(chan CurrentStatusMessage)
 var MultiBroadCast = make(chan ByteBroadCast)
-const provideTime = 5
+const provideTime = 1
 // var ch = make(chan bool)
 
 func broadcastMessageToClients() {
