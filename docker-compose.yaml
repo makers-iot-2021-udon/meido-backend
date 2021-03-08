@@ -17,6 +17,10 @@ services:
     ports:
       - "6379:6379"
     command: redis-server
+  flask: 
+     build: ./flask
+     ports: 
+      - "9000:9000"
   # worker:
   #   build: ./worker
   #   depends_on:

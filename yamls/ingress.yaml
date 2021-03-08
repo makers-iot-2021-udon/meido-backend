@@ -75,3 +75,29 @@ spec:
           servicePort: 80
         path: /(.*)
 
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: meido-ingress-flask
+  namespace: meido
+  annotation: 
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/user-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - host: meido-app.cf
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            serviceName: meido-flask
+            servicePort: 80
+          path: /flask(/|$)(.*)

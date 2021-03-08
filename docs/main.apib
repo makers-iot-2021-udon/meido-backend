@@ -210,3 +210,20 @@ HOST: http://localhost
         + error: false (boolean) - サーバーにエラーが発生している場合はフラグが立つ。
 
 
+# ハックツハッカソン追加API
+
+## 愛のメッセージを流す
+
++ Request (application/json)
+    + Attributes
+        + action: LOVE_MESSAGE (string,required) - アクションタイプを指定
+        + message: I Love you! (string,required) - アクションタイプを指定
++ Response (application/json)
+    + Attributes
+        + action: LOVE_MESSAGE (string,required) - アクションタイプ
+        + messages: (array[string])
+            + あっぷる (string)
+            + いかでびる (string)
+            + しかばね (string) 
+            + てがみ (string) 
+            + るかりお (string)
