@@ -90,13 +90,14 @@ metadata:
     nginx.ingress.kubernetes.io/user-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
+  tls:
+    - hosts:
+      - meido-app.cf
+      secretName: tls-secret-prod
   rules:
-  - host: meido-app.cf
     http:
       paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
+        - backend:
           service:
             serviceName: meido-flask
             servicePort: 80
