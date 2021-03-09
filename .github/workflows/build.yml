@@ -18,6 +18,7 @@ jobs:
       run: |
         echo $SHA
         docker build ./meido-api --tag notchman/meido-app:$SHA
+        docker build ./flask --tag notchman/meido-flask:$SHA
     - name: docker login
       env:
         DOCKERHUB_USER: ${{ secrets.dockerhub_user }}
@@ -26,7 +27,9 @@ jobs:
     - name: push image
       env:
         SHA: ${{ github.sha }}
-      run: docker push notchman/meido-app:$SHA
+      run: |
+        docker push notchman/meido-app:$SHA
+        docker push notchman/meido-flask:$SHA
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,7 +52,9 @@ jobs:
         gcloud container clusters get-credentials meido --zone us-west1-a
         echo $SHA
         sed -i -e "s/<BACKIMAGE>/notchman\/meido-app:$SHA/" ./yamls/meido/deploy.yaml
+        sed -i -e "s/<FLASKIMAGE>/notchman\/meido-flask:$SHA/" ./yamls/flask/deploy.yaml
         kubectl delete -f ./yamls/redis/deployment.yaml
         kubectl apply -f ./yamls/redis/deployment.yaml
         kubectl apply -f ./yamls/meido/deploy.yaml
+        kubectl apply -f ./yamls/flask/deploy.yaml
         kubectl get pods -o yaml
