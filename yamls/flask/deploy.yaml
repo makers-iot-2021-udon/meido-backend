@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask
+  name: meido-flask
   namespace: meido
 spec:
   selector:
     matchLabels:
-      app: flask
+      app: meido-flask
   template:
     metadata:
       labels:
-        app: flask
+        app: meido-flask
     spec:
       containers:
-      - name: flask
+      - name: meido-flask
         image: <FLASKIMAGE>
         resources:
           limits:
