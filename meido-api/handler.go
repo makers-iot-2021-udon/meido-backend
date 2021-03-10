@@ -168,7 +168,7 @@ func handler(s []byte) ([]byte, bool) {
 		if err != nil {
 			return errorResponse, false
 		}
-		return r, false
+		return r, true
 	}
 	return errorResponse, false
 }
