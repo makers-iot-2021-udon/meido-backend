@@ -15,9 +15,10 @@ jobs:
     - name: build image
       env:
         SHA: ${{ github.sha }}
+        FLASK_URL: ${{secrets.flask_url}}
       run: |
         echo $SHA
-        docker build ./meido-api --tag notchman/meido-app:$SHA
+        docker build ./meido-api --tag notchman/meido-app:$SHA --build-arg flask_url=$FLASK_URL
         docker build ./flask --tag notchman/meido-flask:$SHA
     - name: docker login
       env:

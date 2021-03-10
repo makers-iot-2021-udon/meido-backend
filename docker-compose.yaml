@@ -1,7 +1,10 @@
 version: "3.9"
 services:
   meido-api:
-    build: ./meido-api
+    build: 
+      context: ./meido-api
+      args:
+        - flask_url:http://flask:9000/message
     working_dir: /go/src
     ports:
       - "8080:8080"
@@ -13,7 +16,8 @@ services:
       # ローカルのテストの時だけ有効にする
       - "REDIS_PATH=redis:6379"
       - "PORT=8080"
-      - "FLASK_PATH=http://flask:9000/message"
+      # - "FLASK_URL=http://flask:9000/message"
+
   redis:
     image: redis
     ports:

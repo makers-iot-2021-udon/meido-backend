@@ -22,7 +22,7 @@ type ResponseBody struct {
 }
 
 func flaskHandler(message string) ([]byte, error) {
-	flaskPath := os.Getenv("FLASK_PATH")
+	flaskPath := os.Getenv("FLASK_URL")
 
 	body := new(RequestBody)
 	body.Message = message
