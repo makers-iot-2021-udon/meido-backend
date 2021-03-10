@@ -32,10 +32,10 @@ type MeidoMessage struct {
 	Error   bool   `json:"error"`
 }
 
-// type Message struct {
-// 	Action   string   `json:"action"`
-// 	Messages []string `json:"messages"`
-// }
+type Messages struct {
+	Action   string   `json:"action"`
+	Messages []string `json:"messages"`
+}
 
 type Message struct {
 	Action  string `json:"action"`
@@ -158,6 +158,13 @@ func handler(s []byte) ([]byte, bool) {
 	// 	return r, false
 	case r.Action == "MEIDO_MESSAGE":
 		r, err := connectHandler()
+		if err != nil {
+			return errorResponse, false
+		}
+		return r, false
+
+	case r.Action == "LOVE_MESSAGE":
+		r, err := flaskHandler(r.Message)
 		if err != nil {
 			return errorResponse, false
 		}

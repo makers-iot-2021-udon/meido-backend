@@ -7,11 +7,13 @@ services:
       - "8080:8080"
     depends_on:
       - redis
+      - flask
     environment:
       - "REDIS_HOST=redis:6379"
       # ローカルのテストの時だけ有効にする
       - "REDIS_PATH=redis:6379"
       - "PORT=8080"
+      - "FLASK_PATH=http://flask:9000/message"
   redis:
     image: redis
     ports:
