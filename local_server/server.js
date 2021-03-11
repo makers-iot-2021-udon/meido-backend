@@ -49,6 +49,15 @@ ws.on("message", function incoming(data) {
           io.emit("message", msg);
         }
         break;
+      case "NOTIFY_CURRENT_STATUS":
+        {
+          console.log(jsonObj)
+          let connectCount = jsonObj.connect_count
+       let msg = "hoge"
+          io.emit("conn",String(connectCount))
+        
+        }
+        break;
       default:
         break;
     }

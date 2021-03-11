@@ -169,6 +169,14 @@ func handler(s []byte) ([]byte, bool) {
 			return errorResponse, false
 		}
 		return r, true
+	// 1対1対応
+	// 超絶頭悪い
+	case r.Action == "LOVE_MESSAGE2":
+		r, err := flaskHandler(r.Message)
+		if err != nil {
+			return errorResponse, false
+		}
+		return r, false
 	}
 	return errorResponse, false
 }
