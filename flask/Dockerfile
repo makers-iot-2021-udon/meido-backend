@@ -1,4 +1,16 @@
 FROM python:3.7-alpine
+ARG PROJECT_DIR=/projects/
+
+# ADD ./requirements.txt $PROJECT_DIR
+
+WORKDIR $PROJECT_DIR
+COPY app.py $PROJECT_DIR/
+
+RUN pip install flask
+
+EXPOSE 9000
+
+CMD ["flask","run","--host","0.0.0.0","--port","9000"]
 
 RUN apk update
 RUN apk --no-cache add git gcc curl bash file sudo openssh build-base openssl swig
