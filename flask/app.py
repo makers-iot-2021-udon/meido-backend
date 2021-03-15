@@ -10,7 +10,7 @@ app = Flask(__name__)
 def hello():
     # jsonレスポンス返却
     # jsonifyにdict型オブジェクトを設定するとjsonデータのレスポンスが生成される
-    return jsonify({'messages': ["あっぷる","いか","しかばね","てがみ","るびー"]})
+    return jsonify({'messages': ["あっぷる","いか","しかばね","てがみ","るびー"],"score":114514})
 
 @app.route("/test",methods=['GET'])
 def test():

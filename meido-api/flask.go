@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -22,6 +23,7 @@ type RequestBody struct {
 }
 type ResponseBody struct {
 	Messages []string `json:"messages"`
+	Score    int      `json:"score"`
 }
 
 const LIKE = 0
@@ -58,7 +60,7 @@ func selectMessage() (string, int) {
 	rand.Seed(time.Now().UnixNano())
 
 	var randNum = rand.Intn(10)
-
+	uuidV4 := uuid.New()
 	if 0 <= randNum && randNum < PARAM {
 		//好意的な文章
 
@@ -66,11 +68,17 @@ func selectMessage() (string, int) {
 		if err != nil {
 			return "だいすきだよ", LIKE
 		}
+
+		//DB書き込み
+		addCertUser(acceptTarget, uuidV4.String())
+
 		return messages[rand.Intn(len(messages))], LIKE
 
 	} else {
 		//否定的な文章を読み取る
 		messages, err := readMessage(DISLIKE_FILE_NAME)
+		addCertUser(deniedTarget, uuidV4.String())
+
 		//サイコロゲーム
 		if err != nil {
 			return "だいきらいだよ", DISLIKE
@@ -120,10 +128,19 @@ func flaskHandler(message string) ([]byte, error) {
 	}
 
 	//レスポンスを作成
-
-	r := Messages{
-		Messages: messages.Messages,
-		Action:   "LOVE_MESSAGE",
+	var certMessage string
+	if likeType == LIKE {
+		certMessage = acceptMessage
+	} else {
+		certMessage = deniedMessage
+	}
+	r := FlaskMessages{
+		Messages:        messages.Messages,
+		OriginalMessage: generateMessage,
+		SendMessage:     message,
+		Score:           messages.Score,
+		CertMessage:     certMessage,
+		Action:          "LOVE_MESSAGE",
 	}
 
 	b, err := json.Marshal(r)

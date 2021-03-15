@@ -37,6 +37,15 @@ type Messages struct {
 	Messages []string `json:"messages"`
 }
 
+type FlaskMessages struct {
+	Action          string   `json:"action"`
+	Messages        []string `json:"messages"`
+	SendMessage     string   `json:"send_message"`
+	OriginalMessage string   `json:"origin_message"`
+	Score           int      `json:"score"`
+	CertMessage     string   `json:"cert_message"`
+}
+
 type Message struct {
 	Action  string `json:"action"`
 	Message string `json:"message"`
