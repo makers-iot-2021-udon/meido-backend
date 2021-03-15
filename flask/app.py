@@ -8,6 +8,8 @@ import unittest
 import urllib.request
 import json
 import pykakasi
+import MeCab
+
 
 app = Flask(__name__)
 def read_chunk_tokens(tree, chunk):
@@ -105,7 +107,12 @@ def gen_sentence_ini(message,subjects, predicates):
                 break
         ptoks = random.choice(predicates)
         s2 = merge_surface(ptoks)
-        res.append(s1 + s2)
+        kakasi.setMode('J', 'H') 
+        conv = kakasi.getConverter()
+        j_s2 = conv.do(s2)
+
+        wakati = MeCab.Tagger("-Owakati")
+        res.append(wakati.parse(j_s1 + j_s2))
     return res
 
 
