@@ -58,4 +58,5 @@ jobs:
         kubectl apply -f ./yamls/redis/deployment.yaml
         kubectl apply -f ./yamls/meido/deploy.yaml
         kubectl apply -f ./yamls/flask/deploy.yaml
+        kubectl apply -f ./yamls/ingress.yaml
         kubectl get pods -o yaml
