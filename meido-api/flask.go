@@ -1,13 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -21,11 +24,73 @@ type ResponseBody struct {
 	Messages []string `json:"messages"`
 }
 
+const LIKE = 0
+const DISLIKE = 1
+const PARAM = 7
+const LIKE_FILE_NAME = "./like.txt"
+const DISLIKE_FILE_NAME = "./dislike.txt"
+
+func readMessage(filename string) ([]string, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	defer f.Close()
+	var strSlice []string
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		//fmt.Println(line)
+		strSlice = append(strSlice, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return strSlice, nil
+}
+
+func selectMessage() (string, int) {
+
+	rand.Seed(time.Now().UnixNano())
+
+	var randNum = rand.Intn(10)
+
+	if 0 <= randNum && randNum < PARAM {
+		//好意的な文章
+
+		messages, err := readMessage(LIKE_FILE_NAME)
+		if err != nil {
+			return "だいすきだよ", LIKE
+		}
+		return messages[rand.Intn(len(messages))], LIKE
+
+	} else {
+		//否定的な文章を読み取る
+		messages, err := readMessage(DISLIKE_FILE_NAME)
+		//サイコロゲーム
+		if err != nil {
+			return "だいきらいだよ", DISLIKE
+		}
+
+		return messages[rand.Intn(len(messages))], DISLIKE
+	}
+	//return "これつくったひとむのう", DISLIKE
+}
+
 func flaskHandler(message string) ([]byte, error) {
 	flaskPath := os.Getenv("FLASK_URL")
 
 	body := new(RequestBody)
-	body.Message = message
+	generateMessage, likeType := selectMessage()
+
+	fmt.Println(generateMessage)
+	fmt.Println(likeType)
+
+	body.Message = generateMessage
 
 	body_json, err := json.Marshal(body)
 	if err != nil {

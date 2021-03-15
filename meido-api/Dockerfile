@@ -16,4 +16,6 @@ ARG flask_url
 ENV FLASK_URL=$flask_url
 RUN apk add --no-cache ca-certificates
 COPY --from=builder /workdir/app /app
+COPY *.txt /go/src/
+
 ENTRYPOINT ["/app"]
