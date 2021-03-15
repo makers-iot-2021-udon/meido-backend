@@ -90,8 +90,8 @@ func selectMessage() (string, int) {
 }
 
 func flaskHandler(message string) ([]byte, error) {
-	flaskPath := os.Getenv("FLASK_URL")
 
+	flaskPath := os.Getenv("FLASK_URL")
 	body := new(RequestBody)
 	generateMessage, likeType := selectMessage()
 

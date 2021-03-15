@@ -80,6 +80,7 @@ func handler(s []byte) ([]byte, bool) {
 	if err := json.Unmarshal(s, &r); err != nil {
 		return errorResponse, false
 	}
+	apiCount()
 
 	switch {
 	case r.Action == "POST_DOOR":

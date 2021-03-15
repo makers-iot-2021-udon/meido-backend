@@ -11,6 +11,7 @@ type CurrentStatusMessage struct {
 	AcceptUserCount int64  `json:"accept_count"`
 	DeniedUserCount int64  `json:"denied_count"`
 	ErrorLogCount   int64  `json:"error_count"`
+	ApiCount        int64  `json:"api_count"`
 	SystemStatus    string `json:"system_status"`
 	AuthStatus      string `json:"auth_status`
 }
@@ -26,10 +27,17 @@ var errorStatusMessageResponse = CurrentStatusMessage{
 }
 
 func currentStatus() CurrentStatusMessage {
-
+	apiCount()
 	//現在の接続ユーザーのカウント
 	err := addValue(CLIENT_NUM)
 	connectingCount, err := declValue(CLIENT_NUM)
+	if err != nil {
+		log.Println(err)
+		return errorStatusMessageResponse
+	}
+
+	err = addValue(TARGET_API_COUNT)
+	apiCount, err := declValue(TARGET_API_COUNT)
 	if err != nil {
 		log.Println(err)
 		return errorStatusMessageResponse
@@ -63,6 +71,7 @@ func currentStatus() CurrentStatusMessage {
 		ErrorLogCount:   errorLogCount,
 		SystemStatus:    systemStatus,
 		AuthStatus:      authStatus,
+		ApiCount:        apiCount,
 	}
 
 	// b, err := json.Marshal(r)
@@ -71,4 +80,13 @@ func currentStatus() CurrentStatusMessage {
 	// 	return errorResponse
 	// }
 	return r
+}
+
+const TARGET_API_COUNT = "apiCount"
+
+func apiCount() {
+	err := addValue(TARGET_API_COUNT)
+	if err != nil {
+		log.Println(err)
+	}
 }
