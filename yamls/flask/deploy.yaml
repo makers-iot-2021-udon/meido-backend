@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: meido-flask
-        image: <FLASKIMAGE>
+        image: meido-flask:latest
         resources:
           limits:
             memory: "128Mi"

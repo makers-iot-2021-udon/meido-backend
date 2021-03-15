@@ -9,6 +9,8 @@ import unittest
 import urllib.request
 import json
 import pykakasi
+
+app = Flask(__name__)
 def read_chunk_tokens(tree, chunk):
     """
     チャンクに所属しているトークン列を取得する
@@ -107,37 +109,23 @@ def gen_sentence_ini(message,subjects, predicates):
         res.append(s1 + s2)
     return res
 
-def main():
 
-    f = open('./text.txt', 'r')
-    sentence = f.read()
-    f.close()
-    cp = CaboCha.Parser()
-    tree = cp.parse(sentence)
-    subjects, predicates = read_subjects_and_predicates(tree)
+@app.route("/message",methods=['POST'])
+def hello():
+       # jsonレスポンス返却
+       # jsonifyにdict型オブジェクトを設定するとjsonデータのレスポンスが生成される
+       
+    ｊmessage = request.data["message"]
+    result = gen_sentence_ini(message,subjects, predicates)
+    #後でスコアを出す関数に変える
+    score = 114514 
+    return jsonify({'messages': result,"score":score})
 
-    app = Flask(__name__)
-
-    @app.route("/message",methods=['POST'])
-    def hello():
-        # jsonレスポンス返却
-        # jsonifyにdict型オブジェクトを設定するとjsonデータのレスポンスが生成される
-        
-        message = request.data["message"]
-        result = gen_sentence_ini(message,subjects, predicates)
-        #後でスコアを出す関数に変える
-        score = 114514 
-        return jsonify({'messages': result,"score":score})
-
-    @app.route("/test",methods=['GET'])
-    def test():
-        return jsonify({'messages': ["あっぷる","いか","しかばね","てがみ","るびー"]})
-
-    if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=9000)
+@app.route("/test",methods=['GET'])
+def test():
+    return jsonify({'messages': ["あっぷる","いか","しかばね","てがみ","るびー"]})
 
     #NLP（自然言語処理）
-    
     
     """
     青空文庫から文字を取得
@@ -201,20 +189,14 @@ class Test(unittest.TestCase):
         self.eq('猫は眠らない', ['猫は'], ['眠らない'])
 
 
-main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    f = open('./text.txt', 'r')
+    sentence = f.read()
+    f.close()
+    cp = CaboCha.Parser()
+    tree = cp.parse(sentence)
+    subjects, predicates = read_subjects_and_predicates(tree)
+    app = Flask(__name__)
+    app.run(host='0.0.0.0', port=9000)
 

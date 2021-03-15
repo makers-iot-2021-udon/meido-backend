@@ -4,13 +4,9 @@ ARG PROJECT_DIR=/projects/
 # ADD ./requirements.txt $PROJECT_DIR
 
 WORKDIR $PROJECT_DIR
-COPY app.py $PROJECT_DIR/
+COPY . $PROJECT_DIR/
 
 RUN pip install flask
-
-EXPOSE 9000
-
-CMD ["flask","run","--host","0.0.0.0","--port","9000"]
 
 RUN apk update
 RUN apk --no-cache add git gcc curl bash file sudo openssh build-base openssl swig
@@ -23,11 +19,11 @@ RUN cd /tmp \
     && tar -zxf CRF++-${version}.tar.gz \
     && cd CRF++-${version} \
     && ./configure \
-    && make \
+    && make -j4 \
     && make install \
     && rm -rf /tmp/*
 
-# Install MeCab
+# # Install MeCab
 ENV version 0.996
 ENV url https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE
 RUN cd /tmp \
@@ -35,7 +31,7 @@ RUN cd /tmp \
     && tar -zxf mecab-${version}.tar.gz \
     && cd mecab-${version} \
     && ./configure --enable-utf8-only --with-charset=utf8 \
-    && make \
+    && make -j4 \
     && make install \
     && rm -rf /tmp/*
 
@@ -47,7 +43,7 @@ RUN cd /tmp \
     && tar -zxf mecab-ipadic-${version}.tar.gz \
     && cd mecab-ipadic-${version} \
     && ./configure --with-charset=utf8 \
-    && make \
+    && make -j4 \
     && make install \
     && rm -rf /tmp/*
 
@@ -69,12 +65,12 @@ RUN curl -c cabocha-${version}.tar.bz2 -s -L ${url} \
     && tar -jxf cabocha-${version}.tar.bz2 \
     && cd cabocha-${version} \
     && ./configure --prefix=/usr/local --with-charset=utf8 \
-    && make \
+    && make -j4 \
     && make install \
     && rm -rf /tmp/*
 
-RUN pip3 install mecab-python3
-RUN pip3 install git+https://github.com/kenkov/cabocha
-RUN pip3 install cabocha-python
-#追加分
-RUN pip3 install pykakasi
+RUN pip install mecab-python3 git+https://github.com/kenkov/cabocha cabocha-python pykakasi
+
+EXPOSE 9000
+
+CMD ["flask","run","--host","0.0.0.0","--port","9000"]
