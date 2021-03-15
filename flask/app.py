@@ -1,6 +1,5 @@
 # coding: utf-8
-from flask import Flask
-from flask import jsonify
+from flask import Flask, request, render_template, redirect,jsonify
 import os
 import socket
 import CaboCha
@@ -114,9 +113,14 @@ def gen_sentence_ini(message,subjects, predicates):
 def hello():
        # jsonレスポンス返却
        # jsonifyにdict型オブジェクトを設定するとjsonデータのレスポンスが生成される
-       
-    ｊmessage = request.data["message"]
-    result = gen_sentence_ini(message,subjects, predicates)
+    f = open('./text.txt', 'r')
+    sentence = f.read()
+    f.close()
+    cp = CaboCha.Parser()
+    tree = cp.parse(sentence)
+    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    message = request.json['message']
+    result = gen_sentence_ini(message,g_subjects, g_predicates)
     #後でスコアを出す関数に変える
     score = 114514 
     return jsonify({'messages': result,"score":score})
@@ -165,7 +169,6 @@ def test():
     # for _ in range(20):
     #     result = gen_sentence(subjects, predicates)
     #     print(result)
-    
 
 class Test(unittest.TestCase):
     def eq(self, a, b, c):
@@ -191,12 +194,5 @@ class Test(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    f = open('./text.txt', 'r')
-    sentence = f.read()
-    f.close()
-    cp = CaboCha.Parser()
-    tree = cp.parse(sentence)
-    subjects, predicates = read_subjects_and_predicates(tree)
-    app = Flask(__name__)
-    app.run(host='0.0.0.0', port=9000)
 
+    app.run(host='0.0.0.0', port=9000)

@@ -19,7 +19,7 @@ import (
 //リクエストデータタイプ
 
 type RequestBody struct {
-	Message string `json: "message"`
+	MeidoMessage string `json:"message"`
 }
 type ResponseBody struct {
 	Messages []string `json:"messages"`
@@ -98,9 +98,11 @@ func flaskHandler(message string) ([]byte, error) {
 	fmt.Println(generateMessage)
 	fmt.Println(likeType)
 
-	body.Message = generateMessage
+	body.MeidoMessage = generateMessage
 
 	body_json, err := json.Marshal(body)
+	fmt.Println("test")
+	fmt.Println(body_json)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.Wrap(err, "failed to parse json")
