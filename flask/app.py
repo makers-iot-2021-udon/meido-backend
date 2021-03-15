@@ -78,7 +78,7 @@ def gen_sentence(subjects, predicates):
     s2 = merge_surface(ptoks)
     return s1 + s2
 
-def gen_sentence_ini(message,subjects, predicates):
+def gen_sentence_hiragana(message,subjects, predicates):
     kakasi = pykakasi.kakasi()
     stoks = random.choice(subjects)
     s1 = merge_surface(stoks)
@@ -111,10 +111,44 @@ def gen_sentence_ini(message,subjects, predicates):
         conv = kakasi.getConverter()
         j_s2 = conv.do(s2)
 
-        wakati = MeCab.Tagger("-Owakati")
-        res.append(wakati.parse(j_s1 + j_s2))
+        res.append(j_s1 + j_s2)
     return res
 
+def gen_sentence_kanji(message,subjects, predicates):
+    kakasi = pykakasi.kakasi()
+    stoks = random.choice(subjects)
+    s1 = merge_surface(stoks)
+
+    
+    moji = str.maketrans("ぁぃぅぇぉっゃゅょぢづ", "あいうえおつやゆよじず")
+    message=message.translate(moji)
+    print(message)
+    res = []
+    for i in message:
+        
+        while 1:
+            stoks = random.choice(subjects)
+            s1 = merge_surface(stoks)
+
+            kakasi.setMode('J', 'H') 
+            conv = kakasi.getConverter()
+            j_s1 = conv.do(s1)
+
+            kakasi.setMode('K', 'H') 
+            conv = kakasi.getConverter()
+
+            j_k_s1 = conv.do(j_s1)
+            print(i)
+            if(j_k_s1[0]==i):
+                break
+        ptoks = random.choice(predicates)
+        s2 = merge_surface(ptoks)
+        kakasi.setMode('J', 'H') 
+        conv = kakasi.getConverter()
+        j_s2 = conv.do(s2)
+
+        res.append(s1 + s2)
+    return res
 
 @app.route("/message",methods=['POST'])
 def hello():
@@ -127,7 +161,23 @@ def hello():
     tree = cp.parse(sentence)
     g_subjects, g_predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
-    result = gen_sentence_ini(message,g_subjects, g_predicates)
+    result = gen_sentence_hiragana(message,g_subjects, g_predicates)
+    #後でスコアを出す関数に変える
+    score = 114514 
+    return jsonify({'messages': result,"score":score})
+
+@app.route("/message2",methods=['POST'])
+def hello2():
+       # jsonレスポンス返却
+       # jsonifyにdict型オブジェクトを設定するとjsonデータのレスポンスが生成される
+    f = open('./text.txt', 'r')
+    sentence = f.read()
+    f.close()
+    cp = CaboCha.Parser()
+    tree = cp.parse(sentence)
+    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    message = request.json['message']
+    result = gen_sentence_kanji(message,g_subjects, g_predicates)
     #後でスコアを出す関数に変える
     score = 114514 
     return jsonify({'messages': result,"score":score})
