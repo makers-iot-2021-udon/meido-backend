@@ -47,9 +47,9 @@ ws.on("message", function incoming(data) {
         });
         console.log("msg:", msg);
         io.emit("message", msg);
-        if (jsonObj.type === acceptMessage) {
+        if (jsonObj.cert_message === acceptMessage) {
           io.emit("like", "like")
-        } else (jsonObj.type === deniedMessage) {
+        } else if(jsonObj.cert_message === deniedMessage) {
           io.emit("dislike", "dislike")
         }
         // } else if (jsonObj.type === "SPECIAL") {
