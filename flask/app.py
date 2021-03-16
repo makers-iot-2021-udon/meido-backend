@@ -13,15 +13,7 @@ import csv
 import re
 
 app = Flask(__name__)
-g_subjects = []
-g_predicates = []
-f = open('./tweet_3.txt', 'r')
-sentence6 = f.read()
-f.close()
-sentence6
-cp = CaboCha.Parser()
-tree6 = cp.parse(sentence6)
-g_subjects, g_predicates = read_subjects_and_predicates(tree6)
+
 def read_chunk_tokens(tree, chunk):
     """
     チャンクに所属しているトークン列を取得する
@@ -94,7 +86,7 @@ def gen_sentence_hiragana(message,subjects, predicates):
     s1 = merge_surface(stoks)
 
     
-    moji = str.maketrans("ぁぃぅぇぉっゃゅょぢづ", "あいうえおつやゆよじず")
+    moji = str.maketrans("ぁぃぅぇぉっゃゅょぢづをん", "あいうえおつやゆよじずおむ")
     message=message.translate(moji)
     print(message)
     res = []
@@ -250,6 +242,18 @@ def ex_japanese(s):
 
     return exj_s
 
+g_subjects = []
+g_predicates = []
+f = open('./tweet_3.txt', 'r')
+sentence6 = f.read()
+f.close()
+sentence6
+cp = CaboCha.Parser()
+tree6 = cp.parse(sentence6)
+g_subjects, g_predicates = read_subjects_and_predicates(tree6)
+
+
+
 @app.route("/message",methods=['POST'])
 def hello():
        # jsonレスポンス返却
@@ -350,7 +354,6 @@ def hello5():
 
 @app.route("/message_twitter_3_fast",methods=['POST'])
 def hello6():
-    
     message = request.json['message']
     original_message = request.json['original_message']
 
