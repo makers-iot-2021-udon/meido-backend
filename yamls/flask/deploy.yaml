@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: meido-flask
-        image: meido-flask:latest
+        image: notchman/meido-app:latest
         resources:
           limits:
             memory: "128Mi"
