@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -88,7 +89,10 @@ func selectMessage() (string, int) {
 	}
 	//return "これつくったひとむのう", DISLIKE
 }
-
+func getRuneAt(s string, i int) rune {
+	rs := []rune(s)
+	return rs[i]
+}
 func flaskHandler(message string) ([]byte, error) {
 
 	flaskPath := os.Getenv("FLASK_URL")
@@ -136,6 +140,12 @@ func flaskHandler(message string) ([]byte, error) {
 	} else {
 		certMessage = deniedMessage
 	}
+
+	for i := 0; i < utf8.RuneCountInString(generateMessage); i++ {
+		fmt.Println(string(getRuneAt(generateMessage, i)) + "：　" + messages.Messages[i])
+		messages.Messages[i] = string(getRuneAt(generateMessage, i)) + "：　" + messages.Messages[i]
+	}
+
 	r := FlaskMessages{
 		Messages:        messages.Messages,
 		OriginalMessage: generateMessage,

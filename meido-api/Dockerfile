@@ -1,4 +1,4 @@
-ARG flask_url=http://flask:9000/message
+ARG flask_url=http://flask:9000/message2
 
 FROM golang:latest as builder
 WORKDIR /workdir
