@@ -125,7 +125,7 @@ def gen_sentence_kanji(message,subjects, predicates):
     s1 = merge_surface(stoks)
 
     
-    moji = str.maketrans("ぁぃぅぇぉっゃゅょぢづ", "あいうえおつやゆよじず")
+    moji = str.maketrans("ぁぃぅぇぉっゃゅょぢづをん", "あいうえおつやゆよじずおむ")
     message=message.translate(moji)
     print(message)
     res = []
