@@ -146,7 +146,7 @@ def gen_sentence_kanji(message,subjects, predicates):
             conv = kakasi.getConverter()
 
             j_k_s1 = conv.do(j_s1)
-            #print(i)
+            print(i)
             if(j_k_s1[0]==i and len(s1 + s2)<25):
                 break
         #debug
@@ -281,8 +281,23 @@ def hello2():
 
 @app.route("/message_twitter",methods=['POST'])
 def hello3():
-    print("a")
+    f = open('./tweet_2.txt', 'r')
+    sentence = f.read()
+    f.close()
+    cp = CaboCha.Parser()
+    tree = cp.parse(sentence)
+    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    message = request.json['message']
+    original_message = request.json['original_message']
 
+    user_score = user_cal_score(original_message)
+    print("user_score:"+str(user_score))
+    result, score = gen_sentence_kanji(message,g_subjects, g_predicates)
+    print("score:"+str(score))
+    score += user_score
+    #%に変換
+    score = score * 100.0 
+    return jsonify({'messages': result,"score":score})
 
 @app.route("/test",methods=['GET'])
 def test():
