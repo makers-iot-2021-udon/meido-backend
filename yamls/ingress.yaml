@@ -24,32 +24,31 @@ spec:
             path: /backend(/|$)(.*)
 
 ---
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: meido-ingress-liff
-  namespace: meido
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/user-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  tls:
-    - hosts:
-        - meido-app.cf
-      secretName: tls-secret-prod
-  rules:
-    - host: meido-app.cf
-      http:
-        paths:
-          - backend:
-              serviceName: meido-liff
-              servicePort: 80
-            path: /liff(/|$)(.*)
-
----
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: meido-ingress-liff
+#   namespace: meido
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     cert-manager.io/cluster-issuer: letsencrypt
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#     nginx.ingress.kubernetes.io/user-regex: "true"
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+# spec:
+#   tls:
+#     - hosts:
+#         - meido-app.cf
+#       secretName: tls-secret-prod
+#   rules:
+#     - host: meido-app.cf
+#       http:
+#         paths:
+#           - backend:
+#               serviceName: meido-liff
+#               servicePort: 80
+#             path: /liff(/|$)(.*)
+# ---
 
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
