@@ -98,18 +98,21 @@ def gen_sentence_hiragana(message,subjects, predicates):
             conv = kakasi.getConverter()
             j_s1 = conv.do(s1)
 
+            ptoks = random.choice(predicates)
+            s2 = merge_surface(ptoks)
+
+            kakasi.setMode('J', 'H') 
+            conv = kakasi.getConverter()
+            j_s2 = conv.do(s2)
+
             kakasi.setMode('K', 'H') 
             conv = kakasi.getConverter()
 
             j_k_s1 = conv.do(j_s1)
             print(i)
-            if(j_k_s1[0]==i):
+            if(j_k_s1[0]==i and len(j_s1 + j_s2)<25):
                 break
-        ptoks = random.choice(predicates)
-        s2 = merge_surface(ptoks)
-        kakasi.setMode('J', 'H') 
-        conv = kakasi.getConverter()
-        j_s2 = conv.do(s2)
+        
 
         res.append(j_s1 + j_s2)
     return res
@@ -129,6 +132,8 @@ def gen_sentence_kanji(message,subjects, predicates):
         while 1:
             stoks = random.choice(subjects)
             s1 = merge_surface(stoks)
+            ptoks = random.choice(predicates)
+            s2 = merge_surface(ptoks)
 
             kakasi.setMode('J', 'H') 
             conv = kakasi.getConverter()
@@ -139,13 +144,9 @@ def gen_sentence_kanji(message,subjects, predicates):
 
             j_k_s1 = conv.do(j_s1)
             print(i)
-            if(j_k_s1[0]==i):
+            if(j_k_s1[0]==i and len(s1 + s2)<25):
                 break
-        ptoks = random.choice(predicates)
-        s2 = merge_surface(ptoks)
-        kakasi.setMode('J', 'H') 
-        conv = kakasi.getConverter()
-        j_s2 = conv.do(s2)
+        
 
         res.append(s1 + s2)
     return res
