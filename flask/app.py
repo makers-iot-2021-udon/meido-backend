@@ -10,6 +10,7 @@ import json
 import pykakasi
 import MeCab
 import csv
+import re
 
 app = Flask(__name__)
 def read_chunk_tokens(tree, chunk):
@@ -156,13 +157,13 @@ def gen_sentence_kanji(message,subjects, predicates):
         for tok in ptoks:
             print(tok.surface)
             all_tok_num+=1
-        print("--------------negaposi------------------")
+        print('negaposi:', end='')
         print(count_pn(stoks,ptoks))
         np = count_pn(stoks,ptoks)
         all_np["p"] += np["p"]
         all_np["n"] += np["n"]
         all_np["e"] += np["e"]
-
+        
         res.append(s1 + s2)
     print("--------------all_negaposi------------------")
     print("all_np_p:"+str(all_np["p"]))
@@ -171,6 +172,11 @@ def gen_sentence_kanji(message,subjects, predicates):
     print("--------------all_tok_num------------------")
     print("all_tok_num:"+str(all_tok_num))
     score = (all_np["p"]*3-all_np["n"])/all_tok_num
+    score=score*5
+    if(score>0.5): 
+        score=0.5
+    if(score<-0.5): 
+        score=-0.5
     return res, score
 
 def count_pn(stoks,ptoks):
@@ -183,11 +189,6 @@ def count_pn(stoks,ptoks):
         np_dic[name] = result
         #if i % 500 == 0: print(i)
 
-    # m = MeCab.Tagger ("-Owakati")
-
-    # words = m.parse(s)
-    # words = words.rstrip('\n')
-    # print(words)
     res = {"p":0, "n":0, "e":0}
     
     for tok in stoks:
@@ -205,6 +206,40 @@ def count_pn(stoks,ptoks):
                 res[r] += 1
     return res
 
+def user_cal_score(user_txt):
+    np_dic = {}
+    fp = open("pn.csv", "rt", encoding="utf-8")
+    reader = csv.reader(fp, delimiter='\t')
+    for i, row in enumerate(reader):
+        name = row[0]
+        result = row[1]
+        np_dic[name] = result
+
+    m = MeCab.Tagger ("-Owakati")
+
+    words = m.parse(user_txt)
+    words = words.rstrip('\n')
+    print("ex_original_messageの分かち書き:"+words)
+    res = {"p":0, "n":0, "e":0}
+    for word in words.strip(" "):
+        bf = word
+        if bf in np_dic:
+            r = np_dic[bf]
+            if r in res:
+                res[r] += 1
+    score = (float(res["p"])-float(res["n"])) * 0.1
+    
+    if(score>0.5): 
+        score=0.5
+    if(score<-0.5): 
+        score=-0.5
+    return score
+
+def ex_japanese(s):
+    exj_s = re.sub('/[亜-熙ぁ-んァ-ヶ]', '', s)
+    
+
+    return exj_s
 
 @app.route("/message",methods=['POST'])
 def hello():
@@ -233,8 +268,21 @@ def hello2():
     tree = cp.parse(sentence)
     g_subjects, g_predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
+    original_message = request.json['original_message']
+
+    user_score = user_cal_score(original_message)
+    print("user_score:"+str(user_score))
     result, score = gen_sentence_kanji(message,g_subjects, g_predicates)
+    print("score:"+str(score))
+    score += user_score
+    #%に変換
+    score = score * 100.0 
     return jsonify({'messages': result,"score":score})
+
+@app.route("/message_twitter",methods=['POST'])
+def hello3():
+    print("a")
+
 
 @app.route("/test",methods=['GET'])
 def test():
