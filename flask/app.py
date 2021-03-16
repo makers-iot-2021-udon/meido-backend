@@ -9,7 +9,7 @@ import urllib.request
 import json
 import pykakasi
 import MeCab
-
+import csv
 
 app = Flask(__name__)
 def read_chunk_tokens(tree, chunk):
@@ -109,7 +109,7 @@ def gen_sentence_hiragana(message,subjects, predicates):
             conv = kakasi.getConverter()
 
             j_k_s1 = conv.do(j_s1)
-            print(i)
+            #print(i)
             if(j_k_s1[0]==i and len(j_s1 + j_s2)<25):
                 break
         
@@ -127,6 +127,8 @@ def gen_sentence_kanji(message,subjects, predicates):
     message=message.translate(moji)
     print(message)
     res = []
+    all_np = {"p":0, "n":0, "e":0}
+    all_tok_num = 0
     for i in message:
         
         while 1:
@@ -143,13 +145,66 @@ def gen_sentence_kanji(message,subjects, predicates):
             conv = kakasi.getConverter()
 
             j_k_s1 = conv.do(j_s1)
-            print(i)
+            #print(i)
             if(j_k_s1[0]==i and len(s1 + s2)<25):
                 break
-        
+        #debug
+        print("--------------stok,ptok------------------")
+        for tok in stoks:
+            print(tok.surface)
+            all_tok_num+=1
+        for tok in ptoks:
+            print(tok.surface)
+            all_tok_num+=1
+        print("--------------negaposi------------------")
+        print(count_pn(stoks,ptoks))
+        np = count_pn(stoks,ptoks)
+        all_np["p"] += np["p"]
+        all_np["n"] += np["n"]
+        all_np["e"] += np["e"]
 
         res.append(s1 + s2)
+    print("--------------all_negaposi------------------")
+    print("all_np_p:"+str(all_np["p"]))
+    print("all_np_n:"+str(all_np["n"]))
+    print("all_np_e:"+str(all_np["e"]))
+    print("--------------all_tok_num------------------")
+    print("all_tok_num:"+str(all_tok_num))
+    score = (all_np["p"]*3-all_np["n"])/all_tok_num
+    return res, score
+
+def count_pn(stoks,ptoks):
+    np_dic = {}
+    fp = open("pn.csv", "rt", encoding="utf-8")
+    reader = csv.reader(fp, delimiter='\t')
+    for i, row in enumerate(reader):
+        name = row[0]
+        result = row[1]
+        np_dic[name] = result
+        #if i % 500 == 0: print(i)
+
+    # m = MeCab.Tagger ("-Owakati")
+
+    # words = m.parse(s)
+    # words = words.rstrip('\n')
+    # print(words)
+    res = {"p":0, "n":0, "e":0}
+    
+    for tok in stoks:
+        bf = tok.surface
+        if bf in np_dic:
+            r = np_dic[bf]
+            if r in res:
+                res[r] += 1
+
+    for tok in ptoks:
+        bf = tok.surface
+        if bf in np_dic:
+            r = np_dic[bf]
+            if r in res:
+                res[r] += 1
     return res
+
 
 @app.route("/message",methods=['POST'])
 def hello():
@@ -178,9 +233,7 @@ def hello2():
     tree = cp.parse(sentence)
     g_subjects, g_predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
-    result = gen_sentence_kanji(message,g_subjects, g_predicates)
-    #後でスコアを出す関数に変える
-    score = 114514 
+    result, score = gen_sentence_kanji(message,g_subjects, g_predicates)
     return jsonify({'messages': result,"score":score})
 
 @app.route("/test",methods=['GET'])
