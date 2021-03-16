@@ -4,7 +4,7 @@ services:
     build: 
       context: ./meido-api
       args:
-        - flask_url:http://flask:9000/message2
+        - flask_url:http://flask:9000/message_twitter
     working_dir: /go/src
     ports:
       - "8080:8080"
