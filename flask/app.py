@@ -13,6 +13,15 @@ import csv
 import re
 
 app = Flask(__name__)
+g_subjects = []
+g_predicates = []
+f = open('./tweet_3.txt', 'r')
+sentence6 = f.read()
+f.close()
+sentence6
+cp = CaboCha.Parser()
+tree6 = cp.parse(sentence6)
+g_subjects, g_predicates = read_subjects_and_predicates(tree6)
 def read_chunk_tokens(tree, chunk):
     """
     チャンクに所属しているトークン列を取得する
@@ -250,9 +259,9 @@ def hello():
     f.close()
     cp = CaboCha.Parser()
     tree = cp.parse(sentence)
-    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    subjects, predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
-    result = gen_sentence_hiragana(message,g_subjects, g_predicates)
+    result = gen_sentence_hiragana(message,subjects, predicates)
     #後でスコアを出す関数に変える
     score = 114514 
     return jsonify({'messages': result,"score":score})
@@ -266,13 +275,13 @@ def hello2():
     f.close()
     cp = CaboCha.Parser()
     tree = cp.parse(sentence)
-    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    subjects, predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
     original_message = request.json['original_message']
 
     user_score = user_cal_score(original_message)
     print("user_score:"+str(user_score))
-    result, score = gen_sentence_kanji(message,g_subjects, g_predicates)
+    result, score = gen_sentence_kanji(message,subjects, predicates)
     print("score:"+str(score))
     score += user_score
     #%に変換
@@ -286,13 +295,13 @@ def hello3():
     f.close()
     cp = CaboCha.Parser()
     tree = cp.parse(sentence)
-    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    subjects, predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
     original_message = request.json['original_message']
 
     user_score = user_cal_score(original_message)
     print("user_score:"+str(user_score))
-    result, score = gen_sentence_kanji(message,g_subjects, g_predicates)
+    result, score = gen_sentence_kanji(message,subjects, predicates)
     print("score:"+str(score))
     score += user_score
     #%に変換
@@ -306,13 +315,13 @@ def hello4():
     f.close()
     cp = CaboCha.Parser()
     tree = cp.parse(sentence)
-    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    subjects, predicates = read_subjects_and_predicates(tree)
     message = request.json['message']
     original_message = request.json['original_message']
 
     user_score = user_cal_score(original_message)
     print("user_score:"+str(user_score))
-    result, score = gen_sentence_kanji(message,g_subjects, g_predicates)
+    result, score = gen_sentence_kanji(message,subjects, predicates)
     print("score:"+str(score))
     score += user_score
     #%に変換
@@ -326,7 +335,22 @@ def hello5():
     f.close()
     cp = CaboCha.Parser()
     tree = cp.parse(sentence)
-    g_subjects, g_predicates = read_subjects_and_predicates(tree)
+    subjects, predicates = read_subjects_and_predicates(tree)
+    message = request.json['message']
+    original_message = request.json['original_message']
+
+    user_score = user_cal_score(original_message)
+    print("user_score:"+str(user_score))
+    result, score = gen_sentence_kanji(message,subjects, predicates)
+    print("score:"+str(score))
+    score += user_score
+    #%に変換
+    score = score * 100.0 
+    return jsonify({'messages': result,"score":score})
+
+@app.route("/message_twitter_3_fast",methods=['POST'])
+def hello6():
+    
     message = request.json['message']
     original_message = request.json['original_message']
 
