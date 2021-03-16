@@ -31,35 +31,42 @@ const ws = new WebSocket("ws://localhost:8080/ws", {
 ws.on("open", function open() {
   ws.send("something");
 });
-
+const acceptMessage = "SUCCESS"
+const deniedMessage = "REJECTED"
 ws.on("message", function incoming(data) {
   // console.log(data);
   try {
     const jsonObj = JSON.parse(data);
     switch (jsonObj.action) {
-      case "LOVE_MESSAGE":
-        {
-          console.log(jsonObj);
-          let msg = "";
-          jsonObj.messages.forEach((str, index) => {
-            if (index == 0) msg += str;
-            else msg += "\n" + str;
-          });
-          console.log("msg:", msg);
-          io.emit("message", msg);
+      case "LOVE_MESSAGE": {
+        console.log(jsonObj);
+        let msg = "";
+        jsonObj.messages.forEach((str, index) => {
+          if (index == 0) msg += str;
+          else msg += "\n" + str;
+        });
+        console.log("msg:", msg);
+        io.emit("message", msg);
+        if (jsonObj.cert_message === acceptMessage) {
+          io.emit("like", "like")
+        } else if(jsonObj.cert_message === deniedMessage) {
+          io.emit("dislike", "dislike")
         }
-        break;
-      case "NOTIFY_CURRENT_STATUS":
-        {
-          console.log(jsonObj)
-          let connectCount = jsonObj.connect_count
-       let msg = "hoge"
-          io.emit("conn",String(connectCount))
-        
-        }
-        break;
-      default:
-        break;
+        // } else if (jsonObj.type === "SPECIAL") {
+        //   io.emit("special", "special")
+        // }
+      }
+      break;
+    case "NOTIFY_CURRENT_STATUS": {
+      console.log(jsonObj)
+      let connectCount = jsonObj.connect_count
+      let msg = "hoge"
+      io.emit("conn", String(connectCount))
+
+    }
+    break;
+    default:
+      break;
     }
   } catch (e) {
     // Error handling
