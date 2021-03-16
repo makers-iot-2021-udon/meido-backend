@@ -20,11 +20,12 @@ import (
 //リクエストデータタイプ
 
 type RequestBody struct {
-	MeidoMessage string `json:"message"`
+	MeidoMessage    string `json:"message"`
+	OriginalMessage string `json:"original_message"`
 }
 type ResponseBody struct {
 	Messages []string `json:"messages"`
-	Score    int      `json:"score"`
+	Score    float32  `json:"score"`
 }
 
 const LIKE = 0
@@ -103,6 +104,7 @@ func flaskHandler(message string) ([]byte, error) {
 	fmt.Println(likeType)
 
 	body.MeidoMessage = generateMessage
+	body.OriginalMessage = message
 
 	body_json, err := json.Marshal(body)
 	fmt.Println("test")

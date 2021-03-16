@@ -42,7 +42,7 @@ type FlaskMessages struct {
 	Messages        []string `json:"messages"`
 	SendMessage     string   `json:"send_message"`
 	OriginalMessage string   `json:"origin_message"`
-	Score           int      `json:"score"`
+	Score           float32  `json:"score"`
 	CertMessage     string   `json:"cert_message"`
 }
 
