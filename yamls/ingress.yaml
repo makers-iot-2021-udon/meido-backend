@@ -99,7 +99,6 @@ spec:
               servicePort: 80
             path: /flask(/|$)(.*)
 
-
 ---
 
 apiVersion: networking.k8s.io/v1beta1

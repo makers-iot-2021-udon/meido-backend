@@ -31,8 +31,8 @@ type ResponseBody struct {
 const LIKE = 0
 const DISLIKE = 1
 const PARAM = 7
-const LIKE_FILE_NAME = "./like.txt"
-const DISLIKE_FILE_NAME = "./dislike.txt"
+const LIKE_FILE_NAME = "/like.txt"
+const DISLIKE_FILE_NAME = "/dislike.txt"
 
 func readMessage(filename string) ([]string, error) {
 	f, err := os.Open(filename)
