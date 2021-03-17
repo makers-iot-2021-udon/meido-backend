@@ -19,7 +19,7 @@ jobs:
       run: |
         echo $SHA
         docker build ./meido-api --tag notchman/meido-app:$SHA --build-arg flask_url=$FLASK_URL
-        docker build ./flask --tag notchman/meido-flask:$SHA --build-arg flask_url=$FLASK_URL
+        docker build ./flask --tag notchman/meido-flask:$SHA
     - name: docker login
       env:
         DOCKERHUB_USER: ${{ secrets.dockerhub_user }}
