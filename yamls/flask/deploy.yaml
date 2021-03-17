@@ -4,6 +4,7 @@ metadata:
   name: meido-flask
   namespace: meido
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: meido-flask

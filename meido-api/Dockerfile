@@ -7,6 +7,8 @@ COPY . .
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
+ENV FLASK_URL=$flask_url
+
 # Build
 RUN go build -o app
 
